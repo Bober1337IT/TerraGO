@@ -57,4 +57,17 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+    // Kotlin Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    // SQLDelight
+    implementation(libs.sqldelight.runtime)
+    implementation(libs.sqldelight.android.driver)
+    implementation(libs.sqldelight.coroutines)
+    // Loading photos
+    implementation(libs.coil.compose)
+    // Planning notifications
+    implementation(libs.work.runtime.ktx)
 }
