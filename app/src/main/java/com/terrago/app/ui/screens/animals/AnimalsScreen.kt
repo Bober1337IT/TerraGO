@@ -2,6 +2,7 @@ package com.terrago.app.ui.screens.animals
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.terrago.app.ui.screens.animals.components.AnimalItem
 import com.terrago.app.ui.screens.animals.mock.MockAnimals
@@ -14,6 +15,8 @@ fun AnimalsScreen(
 ) {
     //val animals by viewModel.animalsPreview.collectAsState()
     val animals = MockAnimals.sampleAnimals // Temporary
+
+    Text("Animals count: ${animals.size}")
 
     LazyColumn {
         items(animals) { animal ->
