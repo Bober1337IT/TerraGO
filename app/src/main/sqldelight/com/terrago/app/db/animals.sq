@@ -19,8 +19,22 @@ CREATE TABLE animals (
 getAllAnimals:
 SELECT * FROM animals;
 
-getAnimalsByObject:
-SELECT * FROM animals WHERE object_id = ?;
+getAnimalsById:
+SELECT * FROM animals WHERE animal_id = ?;
+
+getAnimalsWithDetails:
+SELECT
+    a.animal_id,
+    a.name AS animalName,
+    s.name_latin AS speciesLatinName,
+    o.name AS objectName,
+    a.last_feeding,
+    a.last_spray,
+    a.last_molt,
+    a.photo
+FROM animals a
+JOIN species s ON a.species_id = s.species_id
+JOIN objects o ON a.object_id = o.object_id;
 
 insertAnimal:
 INSERT INTO animals(

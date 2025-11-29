@@ -5,8 +5,7 @@ CREATE TABLE objects (
     length INTEGER,
     width INTEGER,
     height INTEGER,
-    location_name TEXT,
-    created_at TEXT
+    location_name TEXT
 );
 
 getAllObjects:
@@ -16,5 +15,5 @@ getObjectById:
 SELECT * FROM objects WHERE object_id = ?;
 
 insertObject:
-INSERT INTO objects(name, description, length, width, height, location_name, created_at)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INSERT INTO objects(name, description, length, width, height, location_name)
+VALUES (?, ?, ?, ?, ?, ?);

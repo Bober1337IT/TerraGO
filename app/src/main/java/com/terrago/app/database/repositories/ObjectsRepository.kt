@@ -31,8 +31,7 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
         length: Long?,
         width: Long?,
         height: Long?,
-        locationName: String?,
-        createdAt: String?
+        locationName: String?
     ){
         db.objectsQueries.insertObject(
             name,
@@ -40,8 +39,7 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
             length,
             width,
             height,
-            locationName,
-            createdAt
+            locationName
         )
     }
 
