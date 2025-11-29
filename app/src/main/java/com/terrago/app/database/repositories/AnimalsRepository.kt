@@ -26,7 +26,7 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
             .map {it.firstOrNull()}
     }
 
-    fun getAnimalsWithDetails(): Flow<List<AnimalPreview>> {
+    fun getAnimalsPreview(): Flow<List<AnimalPreview>> {
         return db.animalsQueries
             .getAnimalsWithDetails()
             .asFlow()
