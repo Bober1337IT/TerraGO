@@ -16,3 +16,6 @@ class DatabaseDriverFactory(
         )
     }
 }
+// Put this into terminal and run it to create db in kotlin
+// ./gradlew generateDebugTerraGoDatabaseInterface
+// ./gradlew generateReleaseTerraGoDatabaseInterface
