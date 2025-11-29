@@ -1,4 +1,4 @@
-package com.terrago.app.ui.screens
+package com.terrago.app.ui.screens.animaldetails
 
 import androidx.compose.runtime.Composable
 import com.terrago.app.viewmodel.AnimalsViewModel
