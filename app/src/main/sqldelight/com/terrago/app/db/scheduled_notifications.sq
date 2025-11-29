@@ -1,0 +1,19 @@
+CREATE TABLE scheduled_notifications (
+    notification_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    calendar_event_id INTEGER NOT NULL,
+    request_code INTEGER NOT NULL,
+    channel_id TEXT NOT NULL,
+    next_trigger_millis INTEGER NOT NULL,
+    is_active INTEGER NOT NULL,
+    FOREIGN KEY (calendar_event_id) REFERENCES calendar_events(calendar_event_id)
+);
+
+getNotificationsForEvent:
+SELECT * FROM scheduled_notifications WHERE calendar_event_id = ?;
+
+insertNotification:
+INSERT INTO scheduled_notifications(
+    calendar_event_id, request_code, channel_id,
+    next_trigger_millis, is_active
+)
+VALUES (?, ?, ?, ?, ?);

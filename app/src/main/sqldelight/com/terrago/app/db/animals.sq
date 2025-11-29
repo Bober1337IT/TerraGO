@@ -1,0 +1,31 @@
+CREATE TABLE animals (
+    animal_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    object_id INTEGER NOT NULL,
+    species_id INTEGER NOT NULL,
+    name TEXT,
+    gender TEXT,
+    birth_date TEXT,
+    last_feeding TEXT,
+    last_spray TEXT,
+    last_molt TEXT,
+    size INTEGER,
+    size_type INTEGER CHECK(size_type IN (0,1,2)),
+    notes TEXT,
+    photo BLOB,
+    FOREIGN KEY (object_id) REFERENCES objects(object_id),
+    FOREIGN KEY (species_id) REFERENCES species(species_id)
+);
+
+getAllAnimals:
+SELECT * FROM animals;
+
+getAnimalsByObject:
+SELECT * FROM animals WHERE object_id = ?;
+
+insertAnimal:
+INSERT INTO animals(
+    object_id, species_id, name, gender, birth_date,
+    last_feeding, last_spray, last_molt,
+    size, size_type, notes, photo
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);

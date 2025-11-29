@@ -1,0 +1,20 @@
+CREATE TABLE calendar_events (
+    calendar_event_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    object_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    event_date TEXT NOT NULL,
+    has_reminder INTEGER NOT NULL,
+    reminder_offset_minutes INTEGER NOT NULL,
+    FOREIGN KEY (object_id) REFERENCES objects(object_id)
+);
+
+getEventsForObject:
+SELECT * FROM calendar_events WHERE object_id = ?;
+
+insertEvent:
+INSERT INTO calendar_events(
+    object_id, title, description, event_date,
+    has_reminder, reminder_offset_minutes
+)
+VALUES (?, ?, ?, ?, ?, ?);

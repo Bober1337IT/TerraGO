@@ -1,0 +1,25 @@
+CREATE TABLE species (
+    species_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name_latin TEXT,
+    name_common TEXT NOT NULL,
+    description TEXT,
+    temperature_min REAL,
+    temperature_max REAL,
+    humidity_min REAL,
+    humidity_max REAL,
+    light_cycle_h INTEGER
+);
+
+getAllSpecies:
+SELECT * FROM species;
+
+getSpeciesById:
+SELECT * FROM species WHERE species_id = ?;
+
+insertSpecies:
+INSERT INTO species(
+    name_latin, name_common, description,
+    temperature_min, temperature_max,
+    humidity_min, humidity_max, light_cycle_h
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
