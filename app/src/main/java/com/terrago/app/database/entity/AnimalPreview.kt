@@ -1,5 +1,6 @@
 package com.terrago.app.database.entity
 
+// Needed to show a preview list of animals
 data class AnimalPreview(
     val animalId: Long,
     val animalName: String?,
