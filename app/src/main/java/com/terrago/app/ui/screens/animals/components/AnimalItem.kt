@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.terrago.app.database.entity.AnimalPreview
+import com.terrago.app.db.Animals
 
 @Composable
 fun AnimalItem(
@@ -23,5 +24,23 @@ fun AnimalItem(
         Text(text = animal.speciesLatinName ?: "")
         Text(text = "Terrarium: ${animal.objectName}")
         Text(text = "Last feeding: ${animal.lastFeeding}")
+    }
+}
+
+// For testing purposes
+@Composable
+fun AnimalItemTest(
+    animal: Animals,
+    onClick: (Long) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .clickable { onClick(animal.animal_id) }
+    ) {
+        Text("ID: ${animal.animal_id}")
+        Text("Name: ${animal.name ?: "-"}")
+        Text("Gender: ${animal.gender ?: "-"}")
+        Text("Size: ${animal.size ?: "-"}")
     }
 }

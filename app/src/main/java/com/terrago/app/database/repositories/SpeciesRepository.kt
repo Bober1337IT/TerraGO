@@ -26,14 +26,14 @@ class SpeciesRepository(private val db: TerraGoDatabase) {
     }
 
     suspend fun insertSpecies(
-        nameLatin: String?,
+        nameLatin: String? = null,
         nameCommon: String,
-        description: String?,
-        temperatureMin: Double?,
-        temperatureMax: Double?,
-        humidityMin: Double?,
-        humidityMax: Double?,
-        lightCycleH: Long?
+        description: String? = null,
+        temperatureMin: Double? = null,
+        temperatureMax: Double? = null,
+        humidityMin: Double? = null,
+        humidityMax: Double? = null,
+        lightCycleH: Long? = null
     ) {
         db.speciesQueries.insertSpecies(
             nameLatin,

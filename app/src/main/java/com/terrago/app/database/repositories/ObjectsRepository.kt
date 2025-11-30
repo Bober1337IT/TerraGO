@@ -27,11 +27,11 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
 
     suspend fun insertObject(
         name: String,
-        description: String?,
-        length: Long?,
-        width: Long?,
-        height: Long?,
-        locationName: String?
+        description: String? = null,
+        length: Long? = null,
+        width: Long? = null,
+        height: Long? = null,
+        locationName: String? = null
     ){
         db.objectsQueries.insertObject(
             name,

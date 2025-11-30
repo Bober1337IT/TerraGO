@@ -22,6 +22,9 @@ SELECT * FROM animals;
 getAnimalsById:
 SELECT * FROM animals WHERE animal_id = ?;
 
+deleteAllAnimals:
+DELETE FROM animals;
+
 getAnimalsWithDetails:
 SELECT
     a.animal_id,

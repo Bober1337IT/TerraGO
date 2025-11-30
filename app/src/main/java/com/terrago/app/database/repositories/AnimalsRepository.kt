@@ -47,19 +47,24 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
             }
     }
 
+    // For testing purposes
+    fun deleteAllAnimals() {
+        db.animalsQueries.deleteAllAnimals()
+    }
+
     suspend fun insertAnimal(
         objectId: Long,
         speciesId: Long,
         name: String? = null,
-        gender: String?,
-        birthDate: String?,
-        lastFeeding: String?,
-        lastSpray: String?,
-        lastMolt: String?,
-        size: Long?,
-        sizeType: Long?,
-        notes: String?,
-        photo: ByteArray?
+        gender: String? = null,
+        birthDate: String? = null,
+        lastFeeding: String? = null,
+        lastSpray: String? = null,
+        lastMolt: String? = null,
+        size: Long? = null,
+        sizeType: Long? = null,
+        notes: String? = null,
+        photo: ByteArray? = null
     ) {
         db.animalsQueries.insertAnimal(
             objectId,
@@ -76,5 +81,4 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
             photo
         )
     }
-
 }
