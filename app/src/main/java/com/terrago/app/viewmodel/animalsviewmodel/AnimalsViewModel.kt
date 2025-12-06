@@ -1,4 +1,4 @@
-package com.terrago.app.viewmodel
+package com.terrago.app.viewmodel.animalsviewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,7 +20,7 @@ class AnimalsViewModel(
         animalsRepository.getAnimalsPreview()
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
+                started = SharingStarted.Companion.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
 
@@ -65,7 +65,7 @@ class AnimalsViewModel(
         animalsRepository.getAllAnimals()
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
+                SharingStarted.Companion.WhileSubscribed(5000),
                 emptyList()
             )
 

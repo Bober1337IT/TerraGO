@@ -9,7 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.terrago.app.ui.screens.animals.components.AnimalItem
-import com.terrago.app.viewmodel.AnimalsViewModel
+import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
 
 @Composable
 fun AnimalsScreen(

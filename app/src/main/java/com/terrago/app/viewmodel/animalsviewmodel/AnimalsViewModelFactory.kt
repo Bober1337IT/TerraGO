@@ -1,7 +1,8 @@
+package com.terrago.app.viewmodel.animalsviewmodel
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.terrago.app.database.repositories.AnimalsRepository
-import com.terrago.app.viewmodel.AnimalsViewModel
 
 class AnimalsViewModelFactory(
     private val repo: AnimalsRepository
