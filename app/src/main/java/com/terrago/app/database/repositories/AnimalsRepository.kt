@@ -2,29 +2,17 @@ package com.terrago.app.database.repositories
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import com.terrago.app.database.entity.AnimalDetails
 import com.terrago.app.database.entity.AnimalPreview
 import com.terrago.app.db.Animals
+import com.terrago.app.db.GetAnimalsWithDetails
 import com.terrago.app.db.TerraGoDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+
 class AnimalsRepository(private val db: TerraGoDatabase) {
-
-    fun getAllAnimals(): Flow<List<Animals>>{
-        return db.animalsQueries
-            .getAllAnimals()
-            .asFlow()
-            .mapToList(context = Dispatchers.IO)
-    }
-
-    fun getAnimalById(id: Long): Flow<Animals?>{
-        return db.animalsQueries
-            .getAnimalsById(id)
-            .asFlow()
-            .mapToList(context = Dispatchers.IO)
-            .map {it.firstOrNull()}
-    }
 
     fun getAnimalsPreview(): Flow<List<AnimalPreview>> {
         return db.animalsQueries
@@ -46,10 +34,30 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
                 }
             }
     }
-
-    // For testing purposes
-    fun deleteAllAnimals() {
-        db.animalsQueries.deleteAllAnimals()
+    fun getAnimalsDetailsById(animalId: Long): Flow<AnimalDetails?> {
+        return db.animalsQueries
+            .getAnimalsWithDetailsById(animalId)
+            .asFlow()
+            .mapToList(context = Dispatchers.IO)
+            .map { list ->
+                list.firstOrNull()?.let { row ->
+                    AnimalDetails(
+                        animalId = row.animal_id,
+                        animalName = row.animalName,
+                        speciesLatinName = row.speciesLatinName,
+                        objectName = row.objectName,
+                        lastFeeding = row.last_feeding,
+                        lastSpray = row.last_spray,
+                        lastMolt = row.last_molt,
+                        birthDate = row.birth_date,
+                        gender = row.gender,
+                        size = row.size,
+                        sizeType = row.size_type,
+                        notes = row.notes,
+                        photo = row.photo
+                    )
+                }
+            }
     }
 
     suspend fun insertAnimal(
@@ -80,5 +88,26 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
             notes,
             photo
         )
+    }
+
+    // For testing purposes
+
+    fun deleteAllAnimals() {
+        db.animalsQueries.deleteAllAnimals()
+    }
+
+    fun getAllAnimals(): Flow<List<Animals>>{
+        return db.animalsQueries
+            .getAllAnimals()
+            .asFlow()
+            .mapToList(context = Dispatchers.IO)
+    }
+
+    fun getAnimalById(id: Long): Flow<Animals?>{
+        return db.animalsQueries
+            .getAnimalsById(id)
+            .asFlow()
+            .mapToList(context = Dispatchers.IO)
+            .map {it.firstOrNull()}
     }
 }
