@@ -1,5 +1,8 @@
 package com.terrago.app.viewmodel.animalformviewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.terrago.app.database.repositories.AnimalsRepository
@@ -10,8 +13,10 @@ import com.terrago.app.db.Species
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AnimalFormViewModel(
     private val animalsRepository: AnimalsRepository,
@@ -19,15 +24,35 @@ class AnimalFormViewModel(
     private val speciesRepository: SpeciesRepository
 ) : ViewModel() {
 
-    val availableObjects: StateFlow<List<Objects>> = objectsRepository.getAllObjects()
-        .stateIn(
+    // Form state
+    var name by mutableStateOf("")
+    var selectedObject by mutableStateOf<Long?>(null)
+    var selectedSpecies by mutableStateOf<Long?>(null)
+    var birthDate by mutableStateOf("")
+    var gender by mutableStateOf("")
+    var size by mutableStateOf("")
+    var sizeType by mutableStateOf(0L)
+    var notes by mutableStateOf("")
+
+    // Function to clear the form after saving
+    fun clearForm() {
+        name = ""
+        selectedObject = null
+        selectedSpecies = null
+        birthDate = ""
+        gender = ""
+        size = ""
+        sizeType = 0L
+        notes = ""
+    }
+
+    val availableObjects: StateFlow<List<Objects>> = objectsRepository.getAllObjects().stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
-    val availableSpecies: StateFlow<List<Species>> = speciesRepository.getAllSpecies()
-        .stateIn(
+    val availableSpecies: StateFlow<List<Species>> = speciesRepository.getAllSpecies().stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
@@ -89,6 +114,11 @@ class AnimalFormViewModel(
                     height = height,
                     locationName = location
                 )
+                val lastId = objectsRepository.getAllObjects().first()
+                    .maxByOrNull { it.object_id }?.object_id
+                withContext(Dispatchers.Main) {
+                    selectedObject = lastId
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -117,6 +147,11 @@ class AnimalFormViewModel(
                     humidityMax = humidityMax,
                     lightCycleH = lightCycleH
                 )
+                val lastId = speciesRepository.getAllSpecies().first()
+                    .maxByOrNull { it.species_id }?.species_id
+                withContext(Dispatchers.Main) {
+                    selectedSpecies = lastId
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }

@@ -24,16 +24,6 @@ fun AnimalFormScreen(
     val objects by viewModel.availableObjects.collectAsState()
     val species by viewModel.availableSpecies.collectAsState()
 
-    // Form State
-    var name by remember { mutableStateOf("") }
-    var selectedObject by remember { mutableStateOf<Long?>(null) }
-    var selectedSpecies by remember { mutableStateOf<Long?>(null) }
-    var birthDate by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf("") }
-    var size by remember { mutableStateOf("") }
-    var sizeType by remember { mutableStateOf<Long>(0) } // 0: cm, 1: molt, 2: other
-    var notes by remember { mutableStateOf("") }
-
     // Dropdown Expanded States
     var objExp by remember { mutableStateOf(false) }
     var specExp by remember { mutableStateOf(false) }
@@ -44,14 +34,14 @@ fun AnimalFormScreen(
         if (animalId != null) {
             val animal = viewModel.getAnimalById(animalId).first()
             animal?.let {
-                name = it.name ?: ""
-                selectedObject = it.object_id
-                selectedSpecies = it.species_id
-                birthDate = it.birth_date ?: ""
-                gender = it.gender ?: ""
-                size = it.size?.toString() ?: ""
-                sizeType = it.size_type ?: 0
-                notes = it.notes ?: ""
+                viewModel.name = it.name ?: ""
+                viewModel.selectedObject = it.object_id
+                viewModel.selectedSpecies = it.species_id
+                viewModel.birthDate = it.birth_date ?: ""
+                viewModel.gender = it.gender ?: ""
+                viewModel.size = it.size?.toString() ?: ""
+                viewModel.sizeType = it.size_type ?: 0
+                viewModel.notes = it.notes ?: ""
             }
         }
     }
@@ -59,8 +49,8 @@ fun AnimalFormScreen(
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         // Name
         TextField(
-            value = name,
-            onValueChange = { name = it },
+            value = viewModel.name,
+            onValueChange = { viewModel.name = it },
             label = { Text("Name") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -68,7 +58,7 @@ fun AnimalFormScreen(
         // Species dropdown
         ExposedDropdownMenuBox(expanded = specExp, onExpandedChange = { specExp = !specExp }) {
             TextField(
-                value = species.find { it.species_id == selectedSpecies }?.name_latin
+                value = species.find { it.species_id == viewModel.selectedSpecies }?.name_latin
                     ?: "Select Species",
                 onValueChange = {},
                 readOnly = true,
@@ -82,7 +72,7 @@ fun AnimalFormScreen(
                     DropdownMenuItem(
                         text = { Text(spec.name_latin) },
                         onClick = {
-                            selectedSpecies = spec.species_id
+                            viewModel.selectedSpecies = spec.species_id
                             specExp = false
                         }
                     )
@@ -100,7 +90,7 @@ fun AnimalFormScreen(
         // Object Dropdown
         ExposedDropdownMenuBox(expanded = objExp, onExpandedChange = { objExp = !objExp }) {
             TextField(
-                value = objects.find { it.object_id == selectedObject }?.name ?: "Select Habitat",
+                value = objects.find { it.object_id == viewModel.selectedObject }?.name ?: "Select Habitat",
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Habitat") },
@@ -112,7 +102,7 @@ fun AnimalFormScreen(
                 objects.forEach { obj ->
                     DropdownMenuItem(
                         text = { Text(obj.name) },
-                        onClick = { selectedObject = obj.object_id; objExp = false })
+                        onClick = { viewModel.selectedObject = obj.object_id; objExp = false })
                 }
                 DropdownMenuItem(
                     text = { Text("+ New Habitat") },
@@ -122,8 +112,8 @@ fun AnimalFormScreen(
 
         // Birthdate
         TextField(
-            value = birthDate,
-            onValueChange = { birthDate = it },
+            value = viewModel.birthDate,
+            onValueChange = { viewModel.birthDate = it },
             label = { Text("Birthdate") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -133,7 +123,7 @@ fun AnimalFormScreen(
             expanded = genderExp,
             onExpandedChange = { genderExp = !genderExp }) {
             TextField(
-                value = gender.ifBlank { "Select Gender" },
+                value = viewModel.gender.ifBlank { "Select Gender" },
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Gender") },
@@ -145,7 +135,7 @@ fun AnimalFormScreen(
                 listOf("Male", "Female", "Not Sexed").forEach { g ->
                     DropdownMenuItem(
                         text = { Text(g) },
-                        onClick = { gender = g; genderExp = false })
+                        onClick = { viewModel.gender = g; genderExp = false })
                 }
             }
         }
@@ -153,8 +143,8 @@ fun AnimalFormScreen(
         // Size and Size type
         Row(modifier = Modifier.fillMaxWidth()) {
             TextField(
-                value = size,
-                onValueChange = { size = it },
+                value = viewModel.size,
+                onValueChange = { viewModel.size = it },
                 label = { Text("Size") },
                 modifier = Modifier.weight(1f)
             )
@@ -164,7 +154,7 @@ fun AnimalFormScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 TextField(
-                    value = when (sizeType) {
+                    value = when (viewModel.sizeType) {
                         0L -> "cm"; 1L -> "molt"; else -> "other"
                     },
                     onValueChange = {},
@@ -179,44 +169,45 @@ fun AnimalFormScreen(
                     onDismissRequest = { sizeTypeExp = false }) {
                     DropdownMenuItem(
                         text = { Text("cm") },
-                        onClick = { sizeType = 0; sizeTypeExp = false })
+                        onClick = { viewModel.sizeType = 0; sizeTypeExp = false })
                     DropdownMenuItem(
                         text = { Text("molt") },
-                        onClick = { sizeType = 1; sizeTypeExp = false })
+                        onClick = { viewModel.sizeType = 1; sizeTypeExp = false })
                 }
             }
         }
 
         // Notes
         TextField(
-            value = notes,
-            onValueChange = { notes = it },
+            value = viewModel.notes,
+            onValueChange = { viewModel.notes = it },
             label = { Text("Notes") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Button(
             onClick = {
-                if (selectedObject != null && selectedSpecies != null) {
+                if (viewModel.selectedObject != null && viewModel.selectedSpecies != null) {
                     viewModel.insertAnimal(
-                        objectId = selectedObject!!,
-                        speciesId = selectedSpecies!!,
-                        name = name,
-                        gender = gender,
-                        birthDate = birthDate,
+                        objectId = viewModel.selectedObject!!,
+                        speciesId = viewModel.selectedSpecies!!,
+                        name = viewModel.name,
+                        gender = viewModel.gender,
+                        birthDate = viewModel.birthDate,
                         lastFeeding = null,
                         lastSpray = null,
                         lastMolt = null,
-                        size = size.toLongOrNull(),
-                        sizeType = sizeType,
-                        notes = notes,
+                        size = viewModel.size.toLongOrNull(),
+                        sizeType = viewModel.sizeType,
+                        notes = viewModel.notes,
                         photo = null
                     )
+                    viewModel.clearForm()
                     onBack()
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = selectedObject != null && selectedSpecies != null
+            enabled = viewModel.selectedObject != null && viewModel.selectedSpecies != null
         ) {
             Text("Save Animal")
         }
