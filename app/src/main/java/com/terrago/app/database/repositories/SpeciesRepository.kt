@@ -26,8 +26,8 @@ class SpeciesRepository(private val db: TerraGoDatabase) {
     }
 
     suspend fun insertSpecies(
-        nameLatin: String? = null,
-        nameCommon: String,
+        nameLatin: String,
+        nameCommon: String? = null,
         description: String? = null,
         temperatureMin: Double? = null,
         temperatureMax: Double? = null,

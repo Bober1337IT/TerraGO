@@ -7,6 +7,7 @@ import com.terrago.app.database.repositories.ObjectsRepository
 import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.Objects
 import com.terrago.app.db.Species
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -18,7 +19,6 @@ class AnimalFormViewModel(
     private val speciesRepository: SpeciesRepository
 ) : ViewModel() {
 
-    // Used to populate dropdown menus
     val availableObjects: StateFlow<List<Objects>> = objectsRepository.getAllObjects()
         .stateIn(
             scope = viewModelScope,
@@ -49,35 +49,78 @@ class AnimalFormViewModel(
         notes: String?,
         photo: ByteArray?
     ) {
-        viewModelScope.launch {
-            animalsRepository.insertAnimal(
-                objectId = objectId,
-                speciesId = speciesId,
-                name = name,
-                gender = gender,
-                birthDate = birthDate,
-                lastFeeding = lastFeeding,
-                lastSpray = lastSpray,
-                lastMolt = lastMolt,
-                size = size,
-                sizeType = sizeType,
-                notes = notes,
-                photo = photo
-            )
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                animalsRepository.insertAnimal(
+                    objectId = objectId,
+                    speciesId = speciesId,
+                    name = name,
+                    gender = gender,
+                    birthDate = birthDate,
+                    lastFeeding = lastFeeding,
+                    lastSpray = lastSpray,
+                    lastMolt = lastMolt,
+                    size = size,
+                    sizeType = sizeType,
+                    notes = notes,
+                    photo = photo
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
-    //TODO
-    fun insertObject(name: String, location: String?) {
-        viewModelScope.launch {
-            objectsRepository.insertObject(name = name, locationName = location)
+    fun insertObject(
+        name: String,
+        description: String?,
+        length: Long?,
+        width: Long?,
+        height: Long?,
+        location: String?
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                objectsRepository.insertObject(
+                    name = name,
+                    description = description,
+                    length = length,
+                    width = width,
+                    height = height,
+                    locationName = location
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
-    //TODO
-    fun insertSpecies(commonName: String, latinName: String?) {
-        viewModelScope.launch {
-            speciesRepository.insertSpecies(nameCommon = commonName, nameLatin = latinName)
+    fun insertSpecies(
+        latinName: String,
+        commonName: String?,
+        description: String?,
+        temperatureMin: Double?,
+        temperatureMax: Double?,
+        humidityMin: Double?,
+        humidityMax: Double?,
+        lightCycleH: Long?
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                speciesRepository.insertSpecies(
+                    nameLatin = latinName,
+                    nameCommon = commonName,
+                    description = description,
+                    temperatureMin = temperatureMin,
+                    temperatureMax = temperatureMax,
+                    humidityMin = humidityMin,
+                    humidityMax = humidityMax,
+                    lightCycleH = lightCycleH
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
+

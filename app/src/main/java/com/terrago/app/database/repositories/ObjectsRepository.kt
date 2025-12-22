@@ -10,19 +10,19 @@ import kotlinx.coroutines.flow.map
 
 class ObjectsRepository(private val db: TerraGoDatabase) {
 
-    fun getAllObjects(): Flow<List<Objects>>{
+    fun getAllObjects(): Flow<List<Objects>> {
         return db.objectsQueries
             .getAllObjects()
             .asFlow()
             .mapToList(context = Dispatchers.IO)
     }
 
-    fun getObjectById(id: Long): Flow<Objects?>{
+    fun getObjectById(id: Long): Flow<Objects?> {
         return db.objectsQueries
             .getObjectById(id)
             .asFlow()
             .mapToList(context = Dispatchers.IO)
-            .map {it.firstOrNull()}
+            .map { it.firstOrNull() }
     }
 
     suspend fun insertObject(
@@ -32,7 +32,7 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
         width: Long? = null,
         height: Long? = null,
         locationName: String? = null
-    ){
+    ) {
         db.objectsQueries.insertObject(
             name,
             description,

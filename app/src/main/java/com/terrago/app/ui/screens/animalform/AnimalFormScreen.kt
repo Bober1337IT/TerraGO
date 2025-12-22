@@ -8,12 +8,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.navigation.NavController
+import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 import com.terrago.app.navigation.graph.routes.AnimalFormRoutes
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,138 +24,201 @@ fun AnimalFormScreen(
     val objects by viewModel.availableObjects.collectAsState()
     val species by viewModel.availableSpecies.collectAsState()
 
-    // Main Form State
+    // Form State
     var name by remember { mutableStateOf("") }
     var selectedObject by remember { mutableStateOf<Long?>(null) }
     var selectedSpecies by remember { mutableStateOf<Long?>(null) }
+    var birthDate by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("") }
+    var size by remember { mutableStateOf("") }
+    var sizeType by remember { mutableStateOf<Long>(0) } // 0: cm, 1: molt, 2: other
     var notes by remember { mutableStateOf("") }
 
-    // Fetch Animal Details if editing
+    // Dropdown Expanded States
+    var objExp by remember { mutableStateOf(false) }
+    var specExp by remember { mutableStateOf(false) }
+    var genderExp by remember { mutableStateOf(false) }
+    var sizeTypeExp by remember { mutableStateOf(false) }
+
     LaunchedEffect(animalId) {
         if (animalId != null) {
-            viewModel.getAnimalById(animalId).collect { animal ->
-                animal?.let {
-                    name = it.name ?: ""
-                    selectedObject = it.object_id
-                    selectedSpecies = it.species_id
-                    notes = it.notes ?: ""
-                }
+            val animal = viewModel.getAnimalById(animalId).first()
+            animal?.let {
+                name = it.name ?: ""
+                selectedObject = it.object_id
+                selectedSpecies = it.species_id
+                birthDate = it.birth_date ?: ""
+                gender = it.gender ?: ""
+                size = it.size?.toString() ?: ""
+                sizeType = it.size_type ?: 0
+                notes = it.notes ?: ""
             }
         }
     }
 
-    // Dropdown States
-    var objectExpanded by remember { mutableStateOf(false) }
-    var speciesExpanded by remember { mutableStateOf(false) }
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        // Name
+        TextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Name") },
+            modifier = Modifier.fillMaxWidth()
+        )
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text(if (animalId == null) "Add Animal" else "Edit Animal") }) }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        // Species dropdown
+        ExposedDropdownMenuBox(expanded = specExp, onExpandedChange = { specExp = !specExp }) {
+            TextField(
+                value = species.find { it.species_id == selectedSpecies }?.name_latin
+                    ?: "Select Species",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Species") },
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+            ExposedDropdownMenu(expanded = specExp, onDismissRequest = { specExp = false }) {
+                species.forEach { spec ->
+                    DropdownMenuItem(
+                        text = { Text(spec.name_latin) },
+                        onClick = {
+                            selectedSpecies = spec.species_id
+                            specExp = false
+                        }
+                    )
+                }
+                DropdownMenuItem(
+                    text = { Text("+ New Species") },
+                    onClick = {
+                        specExp = false
+                        navController.navigate(AnimalFormRoutes.NEW_SPECIES)
+                    }
+                )
+            }
+        }
+
+        // Object Dropdown
+        ExposedDropdownMenuBox(expanded = objExp, onExpandedChange = { objExp = !objExp }) {
+            TextField(
+                value = objects.find { it.object_id == selectedObject }?.name ?: "Select Habitat",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Habitat") },
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+            ExposedDropdownMenu(expanded = objExp, onDismissRequest = { objExp = false }) {
+                objects.forEach { obj ->
+                    DropdownMenuItem(
+                        text = { Text(obj.name) },
+                        onClick = { selectedObject = obj.object_id; objExp = false })
+                }
+                DropdownMenuItem(
+                    text = { Text("+ New Habitat") },
+                    onClick = { navController.navigate(AnimalFormRoutes.NEW_HABITAT) })
+            }
+        }
+
+        // Birthdate
+        TextField(
+            value = birthDate,
+            onValueChange = { birthDate = it },
+            label = { Text("Birthdate") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Gender Dropdown
+        ExposedDropdownMenuBox(
+            expanded = genderExp,
+            onExpandedChange = { genderExp = !genderExp }) {
+            TextField(
+                value = gender.ifBlank { "Select Gender" },
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Gender") },
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+            ExposedDropdownMenu(expanded = genderExp, onDismissRequest = { genderExp = false }) {
+                listOf("Male", "Female", "Not Sexed").forEach { g ->
+                    DropdownMenuItem(
+                        text = { Text(g) },
+                        onClick = { gender = g; genderExp = false })
+                }
+            }
+        }
+
+        // Size and Size type
+        Row(modifier = Modifier.fillMaxWidth()) {
+            TextField(
+                value = size,
+                onValueChange = { size = it },
+                label = { Text("Size") },
+                modifier = Modifier.weight(1f)
+            )
+            ExposedDropdownMenuBox(
+                expanded = sizeTypeExp,
+                onExpandedChange = { sizeTypeExp = !sizeTypeExp },
+                modifier = Modifier.weight(1f)
+            ) {
+                TextField(
+                    value = when (sizeType) {
+                        0L -> "cm"; 1L -> "molt"; else -> "other"
+                    },
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Unit") },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = sizeTypeExp,
+                    onDismissRequest = { sizeTypeExp = false }) {
+                    DropdownMenuItem(
+                        text = { Text("cm") },
+                        onClick = { sizeType = 0; sizeTypeExp = false })
+                    DropdownMenuItem(
+                        text = { Text("molt") },
+                        onClick = { sizeType = 1; sizeTypeExp = false })
+                }
+            }
+        }
+
+        // Notes
+        TextField(
+            value = notes,
+            onValueChange = { notes = it },
+            label = { Text("Notes") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Button(
+            onClick = {
+                if (selectedObject != null && selectedSpecies != null) {
+                    viewModel.insertAnimal(
+                        objectId = selectedObject!!,
+                        speciesId = selectedSpecies!!,
+                        name = name,
+                        gender = gender,
+                        birthDate = birthDate,
+                        lastFeeding = null,
+                        lastSpray = null,
+                        lastMolt = null,
+                        size = size.toLongOrNull(),
+                        sizeType = sizeType,
+                        notes = notes,
+                        photo = null
+                    )
+                    onBack()
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = selectedObject != null && selectedSpecies != null
         ) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Animal Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // OBJECT SELECTOR
-            ExposedDropdownMenuBox(
-                expanded = objectExpanded,
-                onExpandedChange = { objectExpanded = !objectExpanded }
-            ) {
-                OutlinedTextField(
-                    value = objects.find { it.object_id == selectedObject }?.name ?: "Select Habitat",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Habitat") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = objectExpanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
-                )
-                ExposedDropdownMenu(expanded = objectExpanded, onDismissRequest = { objectExpanded = false }) {
-                    objects.forEach { obj ->
-                        DropdownMenuItem(
-                            text = { Text(obj.name) },
-                            onClick = { selectedObject = obj.object_id; objectExpanded = false }
-                        )
-                    }
-                    HorizontalDivider()
-                    DropdownMenuItem(
-                        text = { Text("Add New Habitat...", color = MaterialTheme.colorScheme.primary) },
-                        leadingIcon = { Icon(Icons.Default.Add, contentDescription = null) },
-                        onClick = {
-                            objectExpanded = false
-                            navController.navigate(AnimalFormRoutes.NEW_HABITAT)
-                        }
-                    )
-                }
-            }
-
-            // SPECIES SELECTOR
-            ExposedDropdownMenuBox(
-                expanded = speciesExpanded,
-                onExpandedChange = { speciesExpanded = !speciesExpanded }
-            ) {
-                OutlinedTextField(
-                    value = species.find { it.species_id == selectedSpecies }?.name_common ?: "Select Species",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Species") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = speciesExpanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
-                )
-                ExposedDropdownMenu(expanded = speciesExpanded, onDismissRequest = { speciesExpanded = false }) {
-                    species.forEach { spec ->
-                        DropdownMenuItem(
-                            text = { Text(spec.name_common) },
-                            onClick = { selectedSpecies = spec.species_id; speciesExpanded = false }
-                        )
-                    }
-                    HorizontalDivider()
-                    DropdownMenuItem(
-                        text = { Text("Add New Species...", color = MaterialTheme.colorScheme.primary) },
-                        leadingIcon = { Icon(Icons.Default.Add, contentDescription = null) },
-                        onClick = {
-                            speciesExpanded = false
-                            navController.navigate(AnimalFormRoutes.NEW_SPECIES)
-                        }
-                    )
-                }
-            }
-
-            OutlinedTextField(
-                value = notes,
-                onValueChange = { notes = it },
-                label = { Text("Notes") },
-                modifier = Modifier.fillMaxWidth().height(120.dp)
-            )
-
-            Button(
-                onClick = {
-                    if (selectedObject != null && selectedSpecies != null) {
-                        viewModel.insertAnimal(
-                            objectId = selectedObject!!,
-                            speciesId = selectedSpecies!!,
-                            name = name,
-                            gender = null, birthDate = null, lastFeeding = null,
-                            lastSpray = null, lastMolt = null, size = null,
-                            sizeType = null, notes = notes, photo = null
-                        )
-                        onBack()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = selectedObject != null && selectedSpecies != null
-            ) {
-                Text("Save Animal")
-            }
+            Text("Save Animal")
         }
     }
 }

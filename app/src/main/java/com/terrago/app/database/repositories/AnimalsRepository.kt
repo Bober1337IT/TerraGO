@@ -34,6 +34,7 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
                 }
             }
     }
+
     fun getAnimalsDetailsById(animalId: Long): Flow<AnimalDetails?> {
         return db.animalsQueries
             .getAnimalsWithDetailsById(animalId)
@@ -90,24 +91,11 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
         )
     }
 
-    // For testing purposes
-
-    fun deleteAllAnimals() {
-        db.animalsQueries.deleteAllAnimals()
-    }
-
-    fun getAllAnimals(): Flow<List<Animals>>{
-        return db.animalsQueries
-            .getAllAnimals()
-            .asFlow()
-            .mapToList(context = Dispatchers.IO)
-    }
-
-    fun getAnimalById(id: Long): Flow<Animals?>{
+    fun getAnimalById(id: Long): Flow<Animals?> {
         return db.animalsQueries
             .getAnimalsById(id)
             .asFlow()
             .mapToList(context = Dispatchers.IO)
-            .map {it.firstOrNull()}
+            .map { it.firstOrNull() }
     }
 }

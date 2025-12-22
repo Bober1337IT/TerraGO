@@ -1,7 +1,7 @@
 CREATE TABLE species (
     species_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    name_latin TEXT,
-    name_common TEXT NOT NULL,
+    name_latin TEXT NOT NULL,
+    name_common TEXT,
     description TEXT,
     temperature_min REAL,
     temperature_max REAL,
