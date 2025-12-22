@@ -123,6 +123,9 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
         )
     }
 
+    suspend fun deleteAnimal(animalId: Long) {
+        db.animalsQueries.deleteAnimal(animalId)
+    }
 
     fun getAnimalById(id: Long): Flow<Animals?> {
         return db.animalsQueries

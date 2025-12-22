@@ -75,6 +75,9 @@ SET object_id = ?,
     photo = ?
 WHERE animal_id = ?;
 
+deleteAnimal:
+DELETE FROM animals WHERE animal_id = ?;
+
 insertAnimal:
 INSERT INTO animals(
     object_id, species_id, name, gender, birth_date,

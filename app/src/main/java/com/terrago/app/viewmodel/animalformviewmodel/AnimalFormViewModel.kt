@@ -115,6 +115,19 @@ class AnimalFormViewModel(
         }
     }
 
+    fun deleteAnimal(animalId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                animalsRepository.deleteAnimal(animalId)
+                withContext(Dispatchers.Main) {
+                    clearForm()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun insertObject(
         name: String,
         description: String?,

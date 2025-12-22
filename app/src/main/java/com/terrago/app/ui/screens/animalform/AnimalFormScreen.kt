@@ -212,5 +212,17 @@ fun AnimalFormScreen(
         ) {
             Text("Save Animal")
         }
+        if(animalId != null){
+            Button(
+                onClick = {
+                    viewModel.deleteAnimal(animalId)
+                    onBack()
+                    onBack()
+                },
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text("Delete Animal")
+            }
+        }
     }
 }
