@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.terrago.app.navigation.Screen
+import com.terrago.app.navigation.graph.routes.AnimalFormRoutes
 import com.terrago.app.ui.screens.animaldetails.AnimalDetailsScreen
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
 
@@ -21,7 +22,8 @@ fun NavGraphBuilder.animalDetailsGraph(
 
         AnimalDetailsScreen(
             viewModel = viewModel,
-            animalId = id
+            animalId = id,
+            onEditClick = { navController.navigate(AnimalFormRoutes.edit(id)) }
         )
     }
 }
