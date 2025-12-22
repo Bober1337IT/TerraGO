@@ -91,6 +91,39 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
         )
     }
 
+    suspend fun updateAnimal(
+        animalId: Long,
+        objectId: Long,
+        speciesId: Long,
+        name: String?,
+        gender: String?,
+        birthDate: String?,
+        lastFeeding: String?,
+        lastSpray: String?,
+        lastMolt: String?,
+        size: Long?,
+        sizeType: Long?,
+        notes: String?,
+        photo: ByteArray?
+    ) {
+        db.animalsQueries.updateAnimal(
+            objectId,
+            speciesId,
+            name,
+            gender,
+            birthDate,
+            lastFeeding,
+            lastSpray,
+            lastMolt,
+            size,
+            sizeType,
+            notes,
+            photo,
+            animalId
+        )
+    }
+
+
     fun getAnimalById(id: Long): Flow<Animals?> {
         return db.animalsQueries
             .getAnimalsById(id)

@@ -61,6 +61,7 @@ class AnimalFormViewModel(
     fun getAnimalById(id: Long) = animalsRepository.getAnimalById(id)
 
     fun insertAnimal(
+        animalId: Long?,
         objectId: Long,
         speciesId: Long,
         name: String?,
@@ -76,20 +77,38 @@ class AnimalFormViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                animalsRepository.insertAnimal(
-                    objectId = objectId,
-                    speciesId = speciesId,
-                    name = name,
-                    gender = gender,
-                    birthDate = birthDate,
-                    lastFeeding = lastFeeding,
-                    lastSpray = lastSpray,
-                    lastMolt = lastMolt,
-                    size = size,
-                    sizeType = sizeType,
-                    notes = notes,
-                    photo = photo
-                )
+                if (animalId == null) {
+                    animalsRepository.insertAnimal(
+                        objectId = objectId,
+                        speciesId = speciesId,
+                        name = name,
+                        gender = gender,
+                        birthDate = birthDate,
+                        lastFeeding = lastFeeding,
+                        lastSpray = lastSpray,
+                        lastMolt = lastMolt,
+                        size = size,
+                        sizeType = sizeType,
+                        notes = notes,
+                        photo = photo
+                    )
+                } else{
+                    animalsRepository.updateAnimal(
+                        animalId = animalId,
+                        objectId = objectId,
+                        speciesId = speciesId,
+                        name = name,
+                        gender = gender,
+                        birthDate = birthDate,
+                        lastFeeding = lastFeeding,
+                        lastSpray = lastSpray,
+                        lastMolt = lastMolt,
+                        size = size,
+                        sizeType = sizeType,
+                        notes = notes,
+                        photo = photo,
+                    )
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }

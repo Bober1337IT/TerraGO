@@ -31,7 +31,7 @@ fun AnimalFormScreen(
     var sizeTypeExp by remember { mutableStateOf(false) }
 
     LaunchedEffect(animalId) {
-        if (animalId != null) {
+        if (animalId != null && viewModel.name.isEmpty()) {
             val animal = viewModel.getAnimalById(animalId).first()
             animal?.let {
                 viewModel.name = it.name ?: ""
@@ -189,6 +189,7 @@ fun AnimalFormScreen(
             onClick = {
                 if (viewModel.selectedObject != null && viewModel.selectedSpecies != null) {
                     viewModel.insertAnimal(
+                        animalId = animalId,
                         objectId = viewModel.selectedObject!!,
                         speciesId = viewModel.selectedSpecies!!,
                         name = viewModel.name,

@@ -59,6 +59,22 @@ JOIN species s ON a.species_id = s.species_id
 JOIN objects o ON a.object_id = o.object_id
 WHERE animal_id = ?;
 
+updateAnimal:
+UPDATE animals
+SET object_id = ?,
+    species_id = ?,
+    name = ?,
+    gender = ?,
+    birth_date = ?,
+    last_feeding = ?,
+    last_spray = ?,
+    last_molt = ?,
+    size = ?,
+    size_type = ?,
+    notes = ?,
+    photo = ?
+WHERE animal_id = ?;
+
 insertAnimal:
 INSERT INTO animals(
     object_id, species_id, name, gender, birth_date,
