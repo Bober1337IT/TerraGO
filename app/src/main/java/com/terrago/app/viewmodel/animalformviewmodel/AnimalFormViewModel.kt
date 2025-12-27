@@ -33,6 +33,7 @@ class AnimalFormViewModel(
     var size by mutableStateOf("")
     var sizeType by mutableStateOf(0L)
     var notes by mutableStateOf("")
+    var photo by mutableStateOf<ByteArray?>(null)
 
     // Function to clear the form after saving
     fun clearForm() {
@@ -44,19 +45,20 @@ class AnimalFormViewModel(
         size = ""
         sizeType = 0L
         notes = ""
+        photo = null
     }
 
     val availableObjects: StateFlow<List<Objects>> = objectsRepository.getAllObjects().stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     val availableSpecies: StateFlow<List<Species>> = speciesRepository.getAllSpecies().stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     fun getAnimalById(id: Long) = animalsRepository.getAnimalById(id)
 
@@ -92,7 +94,7 @@ class AnimalFormViewModel(
                         notes = notes,
                         photo = photo
                     )
-                } else{
+                } else {
                     animalsRepository.updateAnimal(
                         animalId = animalId,
                         objectId = objectId,

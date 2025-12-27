@@ -1,6 +1,7 @@
 package com.terrago.app.ui.screens.animalform
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -8,9 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 import com.terrago.app.navigation.graph.routes.AnimalFormRoutes
+import com.terrago.app.ui.components.PhotoFromByteArray
+import com.terrago.app.ui.components.rememberPhotoPicker
 import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,6 +34,10 @@ fun AnimalFormScreen(
     var genderExp by remember { mutableStateOf(false) }
     var sizeTypeExp by remember { mutableStateOf(false) }
 
+    val photoPicker = rememberPhotoPicker { bytes ->
+        viewModel.photo = bytes
+    }
+
     LaunchedEffect(animalId) {
         if (animalId != null && viewModel.name.isEmpty()) {
             val animal = viewModel.getAnimalById(animalId).first()
@@ -42,6 +50,7 @@ fun AnimalFormScreen(
                 viewModel.size = it.size?.toString() ?: ""
                 viewModel.sizeType = it.size_type ?: 0
                 viewModel.notes = it.notes ?: ""
+                viewModel.photo = it.photo ?: byteArrayOf()
             }
         }
     }
@@ -177,6 +186,41 @@ fun AnimalFormScreen(
             }
         }
 
+        // PHOTO SECTION
+        Text(text = "Animal Photo")
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = { photoPicker.launchGallery() },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(2.dp)
+            ) {
+                Text("Gallery")
+            }
+            Button(
+                onClick = { photoPicker.launchCamera() },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(2.dp)
+            ) {
+                Text("Camera")
+            }
+        }
+
+        // Preview and Remove option
+        if (viewModel.photo != null) {
+            PhotoFromByteArray(
+                bytes = viewModel.photo,
+                modifier = Modifier
+                    .size(150.dp)
+                    .padding(8.dp)
+            )
+            TextButton(onClick = { viewModel.photo = null }) {
+                Text("Remove Photo", color = MaterialTheme.colorScheme.error)
+            }
+        }
+
+
         // Notes
         TextField(
             value = viewModel.notes,
@@ -201,7 +245,7 @@ fun AnimalFormScreen(
                         size = viewModel.size.toLongOrNull(),
                         sizeType = viewModel.sizeType,
                         notes = viewModel.notes,
-                        photo = null
+                        photo = viewModel.photo
                     )
                     viewModel.clearForm()
                     onBack()
@@ -212,7 +256,7 @@ fun AnimalFormScreen(
         ) {
             Text("Save Animal")
         }
-        if(animalId != null){
+        if (animalId != null) {
             Button(
                 onClick = {
                     viewModel.deleteAnimal(animalId)
@@ -220,9 +264,10 @@ fun AnimalFormScreen(
                     onBack()
                 },
                 modifier = Modifier.fillMaxWidth()
-            ){
+            ) {
                 Text("Delete Animal")
             }
         }
+        Spacer(modifier = Modifier.height(64.dp))
     }
 }

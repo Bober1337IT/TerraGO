@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,6 +87,7 @@ fun ObjectFormScreen(
         ) {
             Text("Save Habitat")
         }
+        Spacer(modifier = Modifier.height(64.dp))
     }
 }
 
