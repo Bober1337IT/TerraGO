@@ -1,4 +1,4 @@
-package com.terrago.app.ui.screens.animals.components
+package com.terrago.app.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -44,11 +44,11 @@ fun AnimalItem(
                 style = MaterialTheme.typography.labelSmall
             )
             Text(
-                text = "Molt: ${animal.lastMolt ?: "No data"}",
+                text = "Spray: ${animal.lastSpray ?: "No data"}",
                 style = MaterialTheme.typography.labelSmall
             )
             Text(
-                text = "Spray: ${animal.lastSpray ?: "No data"}",
+                text = "Molt: ${animal.lastMolt ?: "No data"}",
                 style = MaterialTheme.typography.labelSmall
             )
         }

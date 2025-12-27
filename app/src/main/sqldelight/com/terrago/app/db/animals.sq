@@ -75,6 +75,16 @@ SET object_id = ?,
     photo = ?
 WHERE animal_id = ?;
 
+setLastFeeding:
+UPDATE animals
+SET last_feeding = date('now')
+WHERE animal_id = ?;
+
+setLastSpray:
+UPDATE animals
+SET last_spray = date('now')
+WHERE animal_id = ?;
+
 deleteAnimal:
 DELETE FROM animals WHERE animal_id = ?;
 

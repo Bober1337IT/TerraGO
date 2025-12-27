@@ -123,6 +123,14 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
         )
     }
 
+    suspend fun setLastFeeding(animalId: Long) {
+        db.animalsQueries.setLastFeeding(animalId)
+    }
+
+    suspend fun setLastSpray(animalId: Long) {
+        db.animalsQueries.setLastSpray(animalId)
+    }
+
     suspend fun deleteAnimal(animalId: Long) {
         db.animalsQueries.deleteAnimal(animalId)
     }

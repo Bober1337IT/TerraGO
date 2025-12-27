@@ -1,7 +1,6 @@
 package com.terrago.app.ui.screens.animaldetails
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.terrago.app.ui.screens.animals.components.PhotoFromByteArray
+import com.terrago.app.ui.components.PhotoFromByteArray
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
 
 @Composable

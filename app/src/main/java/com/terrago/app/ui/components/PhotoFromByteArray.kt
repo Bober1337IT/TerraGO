@@ -1,4 +1,4 @@
-package com.terrago.app.ui.screens.animals.components
+package com.terrago.app.ui.components
 
 import androidx.compose.ui.graphics.asImageBitmap
 import android.graphics.BitmapFactory
