@@ -1,6 +1,5 @@
 package com.terrago.app.viewmodel.animalsviewmodel
 
-import androidx.activity.result.launch
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.terrago.app.database.entity.AnimalDetails
@@ -38,6 +37,12 @@ class AnimalsViewModel(
     fun setLastSpray(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             animalsRepository.setLastSpray(id)
+        }
+    }
+
+    fun setSize(id: Long, size: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            animalsRepository.setSize(id, size)
         }
     }
 }

@@ -5,7 +5,6 @@ import app.cash.sqldelight.coroutines.mapToList
 import com.terrago.app.database.entity.AnimalDetails
 import com.terrago.app.database.entity.AnimalPreview
 import com.terrago.app.db.Animals
-import com.terrago.app.db.GetAnimalsWithDetails
 import com.terrago.app.db.TerraGoDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -129,6 +128,10 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
 
     suspend fun setLastSpray(animalId: Long) {
         db.animalsQueries.setLastSpray(animalId)
+    }
+
+    suspend fun setSize(animalId: Long, size: Long) {
+        db.animalsQueries.setSize(size, animalId)
     }
 
     suspend fun deleteAnimal(animalId: Long) {

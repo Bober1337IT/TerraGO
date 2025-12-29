@@ -85,6 +85,11 @@ UPDATE animals
 SET last_spray = date('now')
 WHERE animal_id = ?;
 
+setSize:
+UPDATE animals
+SET size = ?
+WHERE animal_id = ?;
+
 deleteAnimal:
 DELETE FROM animals WHERE animal_id = ?;
 
