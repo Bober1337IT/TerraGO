@@ -15,6 +15,7 @@ import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 import com.terrago.app.navigation.graph.routes.AnimalFormRoutes
 import com.terrago.app.ui.components.PhotoFromByteArray
 import com.terrago.app.ui.components.rememberPhotoPicker
+import com.terrago.app.ui.components.topbar.TopActionsBar
 import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,6 +58,7 @@ fun AnimalFormScreen(
 
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         // Name
+        TopActionsBar(onBackClick = onBack)
         TextField(
             value = viewModel.name,
             onValueChange = { viewModel.name = it },
