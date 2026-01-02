@@ -16,7 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.terrago.app.ui.components.PhotoFromByteArray
+import com.terrago.app.ui.components.photo.PhotoFromByteArray
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
 
 @Composable

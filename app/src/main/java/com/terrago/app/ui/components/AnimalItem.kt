@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.terrago.app.database.entity.AnimalPreview
+import com.terrago.app.ui.components.photo.PhotoFromByteArray
 
 @Composable
 fun AnimalItem(

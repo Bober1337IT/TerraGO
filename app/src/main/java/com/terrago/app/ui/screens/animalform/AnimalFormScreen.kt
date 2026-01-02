@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
@@ -25,10 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 import com.terrago.app.navigation.graph.routes.AnimalFormRoutes
-import com.terrago.app.ui.components.PhotoFromByteArray
-import com.terrago.app.ui.components.rememberPhotoPicker
+import com.terrago.app.ui.components.photo.PhotoFromByteArray
+import com.terrago.app.ui.components.photo.rememberPhotoPicker
 import com.terrago.app.ui.components.topbar.TopActionsBar
 import kotlinx.coroutines.flow.first
+import com.terrago.app.ui.components.Label
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -158,21 +161,34 @@ fun AnimalFormScreen(
             Spacer(Modifier.height(8.dp))
             val datePickerState = rememberDatePickerState()
             var showDatePicker by remember { mutableStateOf(false) }
-            OutlinedTextField(
-                value = viewModel.birthDate,
-                onValueChange = {viewModel.birthDate = it},
-                readOnly = true,
-                placeholder = { Text("Enter birth date (DD-MM-YYYY)...") },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Pick date"
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showDatePicker = true }
-            )
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = viewModel.birthDate,
+                    onValueChange = { viewModel.birthDate = it },
+                    readOnly = true,
+                    placeholder = { Text("Enter birth date (DD-MM-YYYY)...") },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Pick date"
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            showDatePicker = true
+                        }
+                )
+            }
             if (showDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showDatePicker = false },
@@ -206,12 +222,6 @@ fun AnimalFormScreen(
                 }
             }
             Spacer(Modifier.height(12.dp))
-//            OutlinedTextField(
-//                value = viewModel.birthDate,
-//                onValueChange = {  },
-//                placeholder = { Text("DD-MM-YYYY") },
-//                modifier = Modifier.fillMaxWidth()
-//            )
 
             Label("Pick gender:")
             Spacer(Modifier.height(8.dp))
@@ -332,7 +342,7 @@ fun AnimalFormScreen(
                     containerColor = Color(0xFF2E7D32)
                 ),
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                enabled = viewModel.selectedObject != null && viewModel.selectedSpecies != null
+                enabled =  viewModel.selectedSpecies != null && viewModel.gender != "" && viewModel.birthDate != "" &&  viewModel.size != ""
             ) {
                 Text("ACCEPT")
                 Spacer(modifier = Modifier.width(8.dp))
@@ -355,15 +365,11 @@ fun AnimalFormScreen(
     }
 }
 @Composable
-private fun Label(text: String) {
-    Text(text, style = MaterialTheme.typography.bodyMedium)
-}
-@Composable
 private fun GenderRow(
     selected: String,
     onSelect: (String) -> Unit
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         listOf("Male", "Female", "Not Sexed").forEach {
             GenderChip(
                 label = it,
@@ -382,14 +388,15 @@ private fun GenderChip(
     modifier: Modifier
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .background(
                 if (selected) Color.Black else Color.White,
                 RoundedCornerShape(8.dp)
             )
             .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center
     ) {
         Text(label, color = if (selected) Color.White else Color.Black)
     }
