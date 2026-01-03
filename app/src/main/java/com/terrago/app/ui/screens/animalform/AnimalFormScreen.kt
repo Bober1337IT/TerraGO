@@ -72,9 +72,11 @@ fun AnimalFormScreen(
         }
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color(0xFFEFFFEF))) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFEFFFEF))
+    ) {
         // Name
         TopActionsBar(onBackClick = onBack)
         Column(
@@ -146,6 +148,12 @@ fun AnimalFormScreen(
                 }
             }
             Spacer(Modifier.height(12.dp))
+
+            //Choose Object
+            TextButton(onClick = { navController.navigate(AnimalFormRoutes.NEW_HABITAT) }) {
+                Text("Choose Habitat")
+            }
+            Text("Habitat: ${objects.find { it.object_id == viewModel.selectedObject }?.name ?: "None"}")
 
             Label("Animal name (optional):")
             Spacer(Modifier.height(8.dp))
@@ -342,7 +350,7 @@ fun AnimalFormScreen(
                     containerColor = Color(0xFF2E7D32)
                 ),
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                enabled =  viewModel.selectedSpecies != null && viewModel.gender != "" && viewModel.birthDate != "" &&  viewModel.size != ""
+                enabled = viewModel.selectedSpecies != null && viewModel.gender != "" && viewModel.birthDate != "" && viewModel.size != ""
             ) {
                 Text("ACCEPT")
                 Spacer(modifier = Modifier.width(8.dp))
@@ -364,12 +372,13 @@ fun AnimalFormScreen(
         }
     }
 }
+
 @Composable
 private fun GenderRow(
     selected: String,
     onSelect: (String) -> Unit
 ) {
-    Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         listOf("Male", "Female", "Not Sexed").forEach {
             GenderChip(
                 label = it,
@@ -380,6 +389,7 @@ private fun GenderRow(
         }
     }
 }
+
 @Composable
 private fun GenderChip(
     label: String,

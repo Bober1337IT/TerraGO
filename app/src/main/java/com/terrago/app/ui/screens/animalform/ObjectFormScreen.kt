@@ -1,6 +1,9 @@
 package com.terrago.app.ui.screens.animalform
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -25,69 +28,93 @@ fun ObjectFormScreen(
     var width by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        // Basic Info
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Habitat Name (Required)") },
-            modifier = Modifier.fillMaxWidth()
-        )
+    val objects by viewModel.availableObjects.collectAsState()
 
-        TextField(
-            value = locationName,
-            onValueChange = { locationName = it },
-            label = { Text("Location Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
+    Column {
 
-        TextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        // Dimensions Row
-        Row(modifier = Modifier.fillMaxWidth()) {
-            TextField(
-                value = length,
-                onValueChange = { length = it },
-                label = { Text("L") },
-                modifier = Modifier.weight(1f)
-            )
-            TextField(
-                value = width,
-                onValueChange = { width = it },
-                label = { Text("W") },
-                modifier = Modifier.weight(1f)
-            )
-            TextField(
-                value = height,
-                onValueChange = { height = it },
-                label = { Text("H") },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Button(
-            onClick = {
-                viewModel.insertObject(
-                    name = name,
-                    description = description.ifBlank { null },
-                    length = length.ifBlank { null }?.toLongOrNull(),
-                    width = width.ifBlank { null }?.toLongOrNull(),
-                    height = height.ifBlank { null }?.toLongOrNull(),
-                    location = locationName.ifBlank { null }
+        //Objects List
+        LazyColumn() {
+            items(
+                items = objects,
+                key = { it.object_id }
+            ) {
+                ListItem(
+                    headlineContent = { Text(it.name) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            viewModel.selectedObject = it.object_id
+                            onBack()
+                        }
                 )
-                onBack()
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = name.isNotBlank()
-        ) {
-            Text("Save Habitat")
+            }
         }
-        Spacer(modifier = Modifier.height(64.dp))
+
+        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+
+            // Basic Info
+            TextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Habitat Name (Required)") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            TextField(
+                value = locationName,
+                onValueChange = { locationName = it },
+                label = { Text("Location Name") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            TextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("Description") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Dimensions Row
+            Row(modifier = Modifier.fillMaxWidth()) {
+                TextField(
+                    value = length,
+                    onValueChange = { length = it },
+                    label = { Text("L") },
+                    modifier = Modifier.weight(1f)
+                )
+                TextField(
+                    value = width,
+                    onValueChange = { width = it },
+                    label = { Text("W") },
+                    modifier = Modifier.weight(1f)
+                )
+                TextField(
+                    value = height,
+                    onValueChange = { height = it },
+                    label = { Text("H") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Button(
+                onClick = {
+                    viewModel.insertObject(
+                        name = name,
+                        description = description.ifBlank { null },
+                        length = length.ifBlank { null }?.toLongOrNull(),
+                        width = width.ifBlank { null }?.toLongOrNull(),
+                        height = height.ifBlank { null }?.toLongOrNull(),
+                        location = locationName.ifBlank { null }
+                    )
+                    onBack()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = name.isNotBlank()
+            ) {
+                Text("Save Habitat")
+            }
+            Spacer(modifier = Modifier.height(64.dp))
+        }
     }
 }
 
