@@ -1,4 +1,4 @@
-package com.terrago.app.ui.components
+package com.terrago.app.ui.components.photo
 
 import android.Manifest
 import android.content.pm.PackageManager

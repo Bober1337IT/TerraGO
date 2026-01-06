@@ -2,6 +2,7 @@ package com.terrago.app.navigation
 
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModelFactory
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -17,7 +18,7 @@ import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
 
 @Composable
-fun AppNavHost(database: TerraGoDatabase) {
+fun AppNavHost(database: TerraGoDatabase,  modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
     // Initialize all Repositories
