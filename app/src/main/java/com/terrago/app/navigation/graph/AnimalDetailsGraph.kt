@@ -23,6 +23,7 @@ fun NavGraphBuilder.animalDetailsGraph(
         AnimalDetailsScreen(
             viewModel = viewModel,
             animalId = id,
+            onBack = { navController.popBackStack() },
             onEditClick = { navController.navigate(AnimalFormRoutes.edit(id)) }
         )
     }
