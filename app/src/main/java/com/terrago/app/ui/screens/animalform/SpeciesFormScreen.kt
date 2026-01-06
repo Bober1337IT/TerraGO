@@ -56,7 +56,7 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                                 contentDescription = "Back",
                                 modifier = Modifier
                                     .size(36.dp)
-                                    .border(2.dp, Color.Black, CircleShape)
+                                    .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
                                     .padding(4.dp)
                             )
                         }
@@ -87,10 +87,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                         shape = RoundedCornerShape(8.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         )
                     )
                 }
@@ -106,10 +106,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                         shape = RoundedCornerShape(8.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         )
                     )
                 }
@@ -129,10 +129,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                             shape = RoundedCornerShape(8.dp),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                focusedBorderColor = Color.Black,
-                                unfocusedBorderColor = Color.Black
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
                             )
                         )
                         OutlinedTextField(
@@ -143,10 +143,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                             shape = RoundedCornerShape(8.dp),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                focusedBorderColor = Color.Black,
-                                unfocusedBorderColor = Color.Black
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
                             )
                         )
                     }
@@ -167,10 +167,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                             shape = RoundedCornerShape(8.dp),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                focusedBorderColor = Color.Black,
-                                unfocusedBorderColor = Color.Black
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
                             )
                         )
                         OutlinedTextField(
@@ -181,10 +181,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                             shape = RoundedCornerShape(8.dp),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                focusedBorderColor = Color.Black,
-                                unfocusedBorderColor = Color.Black
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
                             )
                         )
                     }
@@ -201,10 +201,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                         shape = RoundedCornerShape(8.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         )
                     )
                 }
@@ -219,10 +219,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         )
                     )
                 }
@@ -245,14 +245,14 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                         onBack()
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 32.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(24.dp),
                     enabled = latinName.isNotBlank()
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Text("ACCEPT", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("ACCEPT", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                         Spacer(Modifier.width(8.dp))
-                        Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
+                        Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             }

@@ -102,7 +102,7 @@ fun AnimalFormScreen(
                                 contentDescription = "Back",
                                 modifier = Modifier
                                     .size(36.dp)
-                                    .border(2.dp, Color.Black, CircleShape)
+                                    .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
                                     .padding(4.dp)
                             )
                         }
@@ -114,11 +114,11 @@ fun AnimalFormScreen(
                                     viewModel.deleteAnimal(animalId)
                                     onBack()
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                                 shape = RoundedCornerShape(24.dp),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
                             ) {
-                                Text("DELETE", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                Text("DELETE", color = MaterialTheme.colorScheme.onError, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 Spacer(Modifier.width(4.dp))
                                 Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(16.dp))
                             }
@@ -154,10 +154,10 @@ fun AnimalFormScreen(
                             modifier = Modifier.menuAnchor().fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                focusedBorderColor = Color.Black,
-                                unfocusedBorderColor = Color.Black
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
                             ),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = specExp) }
                         )
@@ -176,9 +176,9 @@ fun AnimalFormScreen(
                     Spacer(Modifier.width(8.dp))
                     IconButton(
                         onClick = { navController.navigate(AnimalFormRoutes.NEW_SPECIES) },
-                        modifier = Modifier.size(48.dp).background(Color(0xFF2E7D32), CircleShape)
+                        modifier = Modifier.size(48.dp).background(MaterialTheme.colorScheme.primary, CircleShape)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Species", tint = Color.White)
+                        Icon(Icons.Default.Add, contentDescription = "Add Species", tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
 
@@ -186,9 +186,12 @@ fun AnimalFormScreen(
                 Label("Choose Habitat:")
                 Button(
                     onClick = { navController.navigate(AnimalFormRoutes.NEW_HABITAT) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
                     shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.Black)
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Text(
                         text = objects.find { it.object_id == viewModel.selectedObject }?.name ?: "Select habitat",
@@ -205,10 +208,10 @@ fun AnimalFormScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = Color.Black,
-                        unfocusedBorderColor = Color.Black
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     )
                 )
 
@@ -225,10 +228,10 @@ fun AnimalFormScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         ),
                         trailingIcon = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.clickable { showDatePicker = true }) }
                     )
@@ -273,10 +276,10 @@ fun AnimalFormScreen(
                             modifier = Modifier.menuAnchor(),
                             shape = RoundedCornerShape(8.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                focusedBorderColor = Color.Black,
-                                unfocusedBorderColor = Color.Black
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
                             ),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = sizeTypeExp) }
                         )
@@ -294,10 +297,10 @@ fun AnimalFormScreen(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         )
                     )
                 }
@@ -306,9 +309,12 @@ fun AnimalFormScreen(
                 Label("Animal photo (optional):")
                 Button(
                     onClick = { photoPicker.launchGallery() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
                     shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.Black)
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Text("Select image", fontWeight = FontWeight.Bold)
                 }
@@ -325,10 +331,10 @@ fun AnimalFormScreen(
                     modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = Color.Black,
-                        unfocusedBorderColor = Color.Black
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     )
                 )
 
@@ -360,14 +366,14 @@ fun AnimalFormScreen(
                         }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 32.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(24.dp),
                     enabled = viewModel.selectedObject != null && viewModel.selectedSpecies != null
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Text("ACCEPT", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("ACCEPT", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                         Spacer(Modifier.width(8.dp))
-                        Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
+                        Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             }
@@ -383,13 +389,13 @@ private fun GenderButton(label: String, isSelected: Boolean, onClick: () -> Unit
             .width(100.dp)
             .height(36.dp),
         shape = RoundedCornerShape(12.dp),
-        color = if (isSelected) Color.Black else Color.White,
-        border = if (!isSelected) androidx.compose.foundation.BorderStroke(1.dp, Color.Black) else null
+        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+        border = if (!isSelected) androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = label,
-                color = if (isSelected) Color.White else Color.Black,
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp
             )

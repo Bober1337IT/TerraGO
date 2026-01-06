@@ -29,29 +29,32 @@ fun TerrariumCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-            .background(Color.White, RoundedCornerShape(8.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
             .clickable { onClick() }
             .padding(12.dp)
 
     ) {
         Text(
             text = name,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.height(4.dp))
 
         Text(
             text = "${width ?: "?"} x ${length ?: "?"} x ${height ?: "?"} cm",
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(4.dp))
 
         if (!location_name.isNullOrBlank()) {
             Text(
                 text = location_name,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.secondary
             )
         }
         if (!description.isNullOrBlank()) {
@@ -59,7 +62,7 @@ fun TerrariumCard(
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.outline
             )
         }
     }
