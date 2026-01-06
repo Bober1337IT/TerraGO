@@ -31,6 +31,9 @@ fun AnimalsScreen(
 ) {
     val animals by viewModel.animalsPreview.collectAsState()
     var currentAction by remember { mutableStateOf(ListAction.NAVIGATE) }
+    
+    var showSizeDialog by remember { mutableStateOf<Long?>(null) }
+    var newSizeText by remember { mutableStateOf("") }
 
     TerraGOTheme(dynamicColor = false) {
         Scaffold(
@@ -92,8 +95,16 @@ fun AnimalsScreen(
                                             currentAction = ListAction.NAVIGATE
                                         }
                                         ListAction.MOLT -> {
-                                            // viewModel.setLastMolt(id) // Logic handled elsewhere
-                                            currentAction = ListAction.NAVIGATE
+                                            if (animal.sizeType == 1L) {
+                                                // Automatic molt for spiders (L stage)
+                                                viewModel.setLastMolt(id)
+                                                currentAction = ListAction.NAVIGATE
+                                            } else {
+                                                // Open dialog for cm/other
+                                                showSizeDialog = id
+                                                newSizeText = animal.size?.toString() ?: ""
+                                                // We don't reset action here yet, wait for dialog confirm
+                                            }
                                         }
                                     }
                                 }
@@ -106,6 +117,41 @@ fun AnimalsScreen(
                     }
                 }
             }
+        }
+        
+        if (showSizeDialog != null) {
+            AlertDialog(
+                onDismissRequest = { showSizeDialog = null },
+                title = { Text("Update Size") },
+                text = {
+                    OutlinedTextField(
+                        value = newSizeText,
+                        onValueChange = { newSizeText = it },
+                        label = { Text("New size") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        newSizeText.toLongOrNull()?.let {
+                            viewModel.setSize(showSizeDialog!!, it)
+                        }
+                        showSizeDialog = null
+                        currentAction = ListAction.NAVIGATE
+                    }) {
+                        Text("Save")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { 
+                        showSizeDialog = null
+                        currentAction = ListAction.NAVIGATE
+                    }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }

@@ -34,6 +34,8 @@ SELECT
     a.last_feeding,
     a.last_spray,
     a.last_molt,
+    a.size,
+    a.size_type,
     a.photo
 FROM animals a
 JOIN species s ON a.species_id = s.species_id
@@ -83,6 +85,12 @@ WHERE animal_id = ?;
 setLastSpray:
 UPDATE animals
 SET last_spray = date('now')
+WHERE animal_id = ?;
+
+setLastMolt:
+UPDATE animals
+SET last_molt = date('now'),
+    size = CASE WHEN size_type = 1 THEN size + 1 ELSE size END
 WHERE animal_id = ?;
 
 setSize:

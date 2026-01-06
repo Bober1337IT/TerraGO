@@ -50,12 +50,14 @@ fun AnimalItem(
                         letterSpacing = 0.5.sp
                     )
                     
-                    Text(
-                        text = animal.animalName ?: "Unnamed",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if (!animal.animalName.isNullOrBlank()) {
+                        Text(
+                            text = animal.animalName,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
                     Text(
                         text = animal.objectName ?: "No Habitat",
@@ -65,10 +67,22 @@ fun AnimalItem(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Status lines matching the reference image style
+                    // Dynamic Status Lines
                     StatusLine(label = "Last fed", value = animal.lastFeeding)
                     StatusLine(label = "Last sprayed", value = animal.lastSpray)
-                    StatusLine(label = "Last molt", value = animal.lastMolt)
+                    
+                    if (animal.sizeType == 1L) {
+                        // Case: Molt Stage (L7, L8 etc.)
+                        val moltDate = animal.lastMolt ?: "N/A"
+                        val moltStage = if (animal.size != null) "L${animal.size}" else "N/A"
+                        StatusLine(label = "Last molt", value = "$moltDate ($moltStage)")
+                    } else {
+                        // Case: cm or other unit
+                        val unit = if (animal.sizeType == 0L) "cm" else "other"
+                        val sizeValue = if (animal.size != null) "${animal.size} $unit" else "N/A"
+                        
+                        StatusLine(label = "Size", value = sizeValue)
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -98,7 +112,7 @@ private fun StatusLine(label: String, value: String?) {
             fontWeight = FontWeight.Normal
         )
         Text(
-            text = value ?: "never",
+            text = value ?: "N/A",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold

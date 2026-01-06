@@ -20,7 +20,7 @@ class AnimalsViewModel(
         animalsRepository.getAnimalsPreview()
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.Companion.WhileSubscribed(5000),
+                started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
 
@@ -37,6 +37,12 @@ class AnimalsViewModel(
     fun setLastSpray(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             animalsRepository.setLastSpray(id)
+        }
+    }
+
+    fun setLastMolt(id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            animalsRepository.setLastMolt(id)
         }
     }
 

@@ -9,5 +9,7 @@ data class AnimalPreview(
     val lastFeeding: String?,
     val lastSpray: String?,
     val lastMolt: String?,
+    val size: Long?,
+    val sizeType: Long?,
     val photo: ByteArray?
 )

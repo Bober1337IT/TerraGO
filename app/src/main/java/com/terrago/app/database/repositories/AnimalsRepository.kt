@@ -28,6 +28,8 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
                         lastFeeding = row.last_feeding,
                         lastSpray = row.last_spray,
                         lastMolt = row.last_molt,
+                        size = row.size,
+                        sizeType = row.size_type,
                         photo = row.photo
                     )
                 }
@@ -128,6 +130,10 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
 
     suspend fun setLastSpray(animalId: Long) {
         db.animalsQueries.setLastSpray(animalId)
+    }
+
+    suspend fun setLastMolt(animalId: Long) {
+        db.animalsQueries.setLastMolt(animalId)
     }
 
     suspend fun setSize(animalId: Long, size: Long) {
