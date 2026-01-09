@@ -18,7 +18,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.terrago.app.R
@@ -26,9 +25,11 @@ import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.ui.components.photo.PhotoFromByteArray
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
 import com.terrago.app.ui.components.enumclasses.PendingAction
-import com.terrago.app.ui.screens.animaldetails.components.*
+import com.terrago.app.ui.screens.animaldetails.components.ActionConfirmationDialog
+import com.terrago.app.ui.screens.animaldetails.components.ActionItem
+import com.terrago.app.ui.screens.animaldetails.components.requirement.RequirementSection
 import com.terrago.app.ui.components.UpdateSizeDialog
-import com.terrago.app.ui.screens.animaldetails.components.requirement.*
+import com.terrago.app.ui.screens.animaldetails.components.ObjectExpandableInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -162,14 +163,16 @@ fun AnimalDetailsScreen(
                         )
                     }
 
-                    // Habitat Details
+                    // Object Details (Clickable to Expand)
                     if (!animal?.objectName.isNullOrBlank()) {
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = "${animal?.objectName}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
+                        Spacer(modifier = Modifier.height(8.dp))
+                        ObjectExpandableInfo(
+                            name = animal?.objectName!!,
+                            description = animal?.objectDescription,
+                            length = animal?.objectLength,
+                            width = animal?.objectWidth,
+                            height = animal?.objectHeight,
+                            location = animal?.objectLocation
                         )
                     }
 
@@ -241,13 +244,13 @@ fun AnimalDetailsScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                    // Placeholder Requirements
+                    // Shared Requirement Section
                     RequirementSection()
                 }
             }
         }
 
-        // Externalized Action Confirmation Dialog
+        // Action Confirmation Dialog
         ActionConfirmationDialog(
             pendingAction = pendingAction,
             onDismiss = { pendingAction = PendingAction.NONE },
@@ -262,7 +265,7 @@ fun AnimalDetailsScreen(
             }
         )
         
-        // Externalized Size Update Dialog
+        // Size Update Dialog
         if (showSizeDialog) {
             UpdateSizeDialog(
                 initialSize = newSizeText,
