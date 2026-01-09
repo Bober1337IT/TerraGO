@@ -1,4 +1,4 @@
-package com.terrago.app.ui.screens.animaldetails.components.requirement
+package com.terrago.app.ui.screens.animaldetails.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme

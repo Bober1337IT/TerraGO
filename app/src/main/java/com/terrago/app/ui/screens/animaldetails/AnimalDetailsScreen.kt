@@ -27,9 +27,9 @@ import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
 import com.terrago.app.ui.components.enumclasses.PendingAction
 import com.terrago.app.ui.screens.animaldetails.components.ActionConfirmationDialog
 import com.terrago.app.ui.screens.animaldetails.components.ActionItem
-import com.terrago.app.ui.screens.animaldetails.components.requirement.RequirementSection
 import com.terrago.app.ui.components.UpdateSizeDialog
 import com.terrago.app.ui.screens.animaldetails.components.ObjectExpandableInfo
+import com.terrago.app.ui.screens.animaldetails.components.SpeciesExpandableInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -125,12 +125,16 @@ fun AnimalDetailsScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                    // Species Name
-                    Text(
-                        text = animal?.speciesLatinName ?: "Unknown Species",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                    // Species Name (Expandable)
+                    SpeciesExpandableInfo(
+                        latinName = animal?.speciesLatinName ?: "Unknown Species",
+                        commonName = animal?.speciesCommonName,
+                        description = animal?.speciesDescription,
+                        tempMin = animal?.speciesTempMin,
+                        tempMax = animal?.speciesTempMax,
+                        humMin = animal?.speciesHumMin,
+                        humMax = animal?.speciesHumMax,
+                        lightCycle = animal?.speciesLightCycle
                     )
 
                     // Gender
@@ -163,7 +167,7 @@ fun AnimalDetailsScreen(
                         )
                     }
 
-                    // Object Details (Clickable to Expand)
+                    // Object Details (Expandable)
                     if (!animal?.objectName.isNullOrBlank()) {
                         Spacer(modifier = Modifier.height(8.dp))
                         ObjectExpandableInfo(
@@ -244,8 +248,6 @@ fun AnimalDetailsScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                    // Shared Requirement Section
-                    RequirementSection()
                 }
             }
         }
