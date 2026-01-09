@@ -30,6 +30,7 @@ import com.terrago.app.ui.screens.animaldetails.components.ActionItem
 import com.terrago.app.ui.components.UpdateSizeDialog
 import com.terrago.app.ui.screens.animaldetails.components.ObjectExpandableInfo
 import com.terrago.app.ui.screens.animaldetails.components.SpeciesExpandableInfo
+import com.terrago.app.ui.screens.animaldetails.components.GenderIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -125,45 +126,43 @@ fun AnimalDetailsScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                    // Species Name (Expandable)
-                    SpeciesExpandableInfo(
-                        latinName = animal?.speciesLatinName ?: "Unknown Species",
-                        commonName = animal?.speciesCommonName,
-                        description = animal?.speciesDescription,
-                        tempMin = animal?.speciesTempMin,
-                        tempMax = animal?.speciesTempMax,
-                        humMin = animal?.speciesHumMin,
-                        humMax = animal?.speciesHumMax,
-                        lightCycle = animal?.speciesLightCycle
-                    )
-
-                    // Gender
-                    if (!animal?.gender.isNullOrBlank()) {
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = if (animal?.gender == "Female") "♀" else "♂",
-                            fontSize = 28.sp,
-                            color = if (animal?.gender == "Female") Color(0xFFFF69B4) else Color(0xFF2196F3)
-                        )
-                    }
-
-                    // Size/Molt Stage
-                    if (animal?.size != null) {
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = if (animal?.sizeType == 1L) "L${animal?.size}" else "${animal?.size} ${if (animal?.sizeType == 0L) "cm" else "other"}",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    // Nickname
+                    // Animal Name Header with Gender
                     if (!animal?.animalName.isNullOrBlank()) {
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = animal?.animalName!!,
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.secondary
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = animal?.animalName!!,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            
+                            GenderIcon(
+                                gender = animal?.gender,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
+
+                    // Species Name Header (Expandable) with Gender (if nickname is null)
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        val latinName = animal?.speciesLatinName ?: "Unknown Species"
+                        
+                        SpeciesExpandableInfo(
+                            latinName = latinName,
+                            commonName = animal?.speciesCommonName,
+                            description = animal?.speciesDescription,
+                            tempMin = animal?.speciesTempMin,
+                            tempMax = animal?.speciesTempMax,
+                            humMin = animal?.speciesHumMin,
+                            humMax = animal?.speciesHumMax,
+                            lightCycle = animal?.speciesLightCycle,
+                            gender = if(animal?.animalName.isNullOrBlank()) {animal?.gender} else null
                         )
                     }
 
@@ -247,7 +246,6 @@ fun AnimalDetailsScreen(
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                     }
-
                 }
             }
         }

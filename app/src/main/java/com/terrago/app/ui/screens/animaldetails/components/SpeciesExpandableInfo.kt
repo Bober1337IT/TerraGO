@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -25,24 +26,39 @@ fun SpeciesExpandableInfo(
     tempMax: Double?,
     humMin: Double?,
     humMax: Double?,
-    lightCycle: Long?
+    lightCycle: Long?,
+    gender: String? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
+            .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .clickable { expanded = !expanded }
             .padding(8.dp)
     ) {
-        Text(
-            text = latinName,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
-        )
+        // Header Row
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = latinName,
+                style = MaterialTheme.typography.titleLarge,
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            
+            if (gender != null) {
+                Spacer(Modifier.width(8.dp))
+                GenderIcon(gender = gender)
+            }
+        }
 
         AnimatedVisibility(
             visible = expanded,
