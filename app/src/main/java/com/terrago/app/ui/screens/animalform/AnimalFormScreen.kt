@@ -6,7 +6,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -31,9 +30,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.terrago.app.R
 import com.terrago.app.navigation.graph.routes.AnimalFormRoutes
-import com.terrago.app.ui.components.Label
+import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.components.photo.PhotoFromByteArray
 import com.terrago.app.ui.components.photo.rememberPhotoPicker
+import com.terrago.app.ui.screens.animalform.components.GenderButton
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 import kotlinx.coroutines.flow.first
@@ -57,7 +57,6 @@ fun AnimalFormScreen(
         viewModel.photo = bytes
     }
 
-    // Handle system back button
     BackHandler {
         viewModel.clearForm()
         onBack()
@@ -377,28 +376,6 @@ fun AnimalFormScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun GenderButton(label: String, isSelected: Boolean, onClick: () -> Unit) {
-    Surface(
-        onClick = onClick,
-        modifier = Modifier
-            .width(100.dp)
-            .height(36.dp),
-        shape = RoundedCornerShape(12.dp),
-        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-        border = if (!isSelected) androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = label,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp
-            )
         }
     }
 }

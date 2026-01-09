@@ -1,6 +1,5 @@
 package com.terrago.app.ui.screens.animalform
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,16 +17,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.terrago.app.R
-import com.terrago.app.ui.components.Label
+import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
-    // Form State matching species.sq
+
     var latinName by remember { mutableStateOf("") }
     var commonName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }

@@ -1,4 +1,4 @@
-package com.terrago.app.ui.components
+package com.terrago.app.ui.screens.animalform.components
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

@@ -1,4 +1,4 @@
-package com.terrago.app.ui.components.topbar
+package com.terrago.app.ui.screens.animals.components.topbar
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,23 +29,24 @@ fun TopActionIconWithLabel(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+
     TerraGOTheme(dynamicColor = false) {
         val backgroundColor by animateColorAsState(
             if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
-            label = "bgColor"
+            label = "backgroundColor"
         )
         val contentColor by animateColorAsState(
             if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
             label = "contentColor"
         )
-        val containerPadding by animateDpAsState(
-            if (selected) 8.dp else 0.dp,
-            label = "padding"
+        val iconPadding by animateDpAsState(
+            if (selected) 8.dp else 10.dp,
+            label = "iconPadding"
         )
 
         Column(
             modifier = Modifier
-                .width(64.dp)
+                .width(72.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .clickable { onClick() }
                 .padding(vertical = 4.dp),
@@ -55,10 +55,10 @@ fun TopActionIconWithLabel(
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(backgroundColor)
-                    .padding(8.dp),
+                    .padding(iconPadding),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -76,7 +76,8 @@ fun TopActionIconWithLabel(
                 style = MaterialTheme.typography.labelSmall,
                 color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                fontSize = 10.sp
+                fontSize = 10.sp,
+                maxLines = 1
             )
         }
     }

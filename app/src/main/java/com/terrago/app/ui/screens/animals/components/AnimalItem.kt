@@ -1,4 +1,4 @@
-package com.terrago.app.ui.components
+package com.terrago.app.ui.screens.animals.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

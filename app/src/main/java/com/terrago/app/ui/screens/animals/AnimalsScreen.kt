@@ -7,19 +7,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.terrago.app.ui.components.AnimalItem
-import com.terrago.app.ui.components.topbar.TopActionsBarWithIcons
+import com.terrago.app.ui.components.UpdateSizeDialog
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
+import com.terrago.app.ui.components.enumclasses.ListAction
+import com.terrago.app.ui.screens.animals.components.*
+import com.terrago.app.ui.screens.animals.components.topbar.TopActionsBarWithIcons
 
-enum class ListAction {
-    NAVIGATE, FEED, SPRAY, MOLT
-}
 
 @Composable
 fun AnimalsScreen(
@@ -68,7 +64,7 @@ fun AnimalsScreen(
                     .fillMaxSize()
             ) {
                 if (animals.isEmpty()) {
-                    EmptyAnimalsState(onAddAnimalClick)
+                    EmptyAnimalsState(onAddClick = onAddAnimalClick)
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -94,14 +90,11 @@ fun AnimalsScreen(
                                         }
                                         ListAction.MOLT -> {
                                             if (animal.sizeType == 1L) {
-                                                // Automatic molt for spiders (L stage)
                                                 viewModel.setLastMolt(id)
                                                 currentAction = ListAction.NAVIGATE
                                             } else {
-                                                // Open dialog for cm/other
                                                 showSizeDialog = id
                                                 newSizeText = animal.size?.toString() ?: ""
-                                                // We don't reset action here yet, wait for dialog confirm
                                             }
                                         }
                                     }
@@ -110,7 +103,7 @@ fun AnimalsScreen(
                         }
                         
                         item {
-                            Spacer(modifier = Modifier.height(100.dp))
+                            Spacer(modifier = Modifier.height(50.dp))
                         }
                     }
                 }
@@ -118,76 +111,18 @@ fun AnimalsScreen(
         }
         
         if (showSizeDialog != null) {
-            AlertDialog(
-                onDismissRequest = { showSizeDialog = null },
-                title = { Text("Update Size") },
-                text = {
-                    OutlinedTextField(
-                        value = newSizeText,
-                        onValueChange = { newSizeText = it },
-                        label = { Text("New size") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+            UpdateSizeDialog(
+                initialSize = newSizeText,
+                onDismiss = {
+                    showSizeDialog = null
+                    currentAction = ListAction.NAVIGATE
                 },
-                confirmButton = {
-                    TextButton(onClick = {
-                        newSizeText.toLongOrNull()?.let {
-                            viewModel.setSize(showSizeDialog!!, it)
-                        }
-                        showSizeDialog = null
-                        currentAction = ListAction.NAVIGATE
-                    }) {
-                        Text("Save")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { 
-                        showSizeDialog = null
-                        currentAction = ListAction.NAVIGATE
-                    }) {
-                        Text("Cancel")
-                    }
+                onConfirm = { newSize ->
+                    viewModel.setSize(showSizeDialog!!, newSize)
+                    showSizeDialog = null
+                    currentAction = ListAction.NAVIGATE
                 }
             )
-        }
-    }
-}
-
-@Composable
-private fun EmptyAnimalsState(onAddClick: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(32.dp)
-        ) {
-            Text(
-                text = "🌿",
-                fontSize = 64.sp
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Your collection is empty",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "Start adding your first animal habitat!",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = onAddClick,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Text("Add New Animal")
-            }
         }
     }
 }

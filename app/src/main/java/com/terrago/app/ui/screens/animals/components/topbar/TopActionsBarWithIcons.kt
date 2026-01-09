@@ -1,4 +1,4 @@
-package com.terrago.app.ui.components.topbar
+package com.terrago.app.ui.screens.animals.components.topbar
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.terrago.app.R
-import com.terrago.app.ui.screens.animals.ListAction
+import com.terrago.app.ui.components.enumclasses.ListAction
 import com.terrago.app.ui.theme.TerraGOTheme
 
 @Composable

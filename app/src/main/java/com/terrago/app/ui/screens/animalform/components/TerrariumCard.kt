@@ -1,4 +1,4 @@
-package com.terrago.app.ui.components
+package com.terrago.app.ui.screens.animalform.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -23,7 +22,7 @@ fun TerrariumCard(
     length: Long?,
     height: Long?,
     description: String?,
-    location_name: String?,
+    locationName: String?,
     onClick: () -> Unit
 ) {
     Column(
@@ -50,9 +49,9 @@ fun TerrariumCard(
         )
         Spacer(Modifier.height(4.dp))
 
-        if (!location_name.isNullOrBlank()) {
+        if (!locationName.isNullOrBlank()) {
             Text(
-                text = location_name,
+                text = locationName,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.secondary
             )
