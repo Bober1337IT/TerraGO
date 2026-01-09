@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -32,7 +33,12 @@ fun ActionItem(icon: Int, label: String, value: String, onClick: () -> Unit) {
                 modifier = Modifier.size(48.dp)
             )
             Text(text = label, style = MaterialTheme.typography.labelMedium)
-            Text(text = value, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+            Text(
+                text = value, 
+                style = MaterialTheme.typography.labelSmall, 
+                color = MaterialTheme.colorScheme.outline,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }

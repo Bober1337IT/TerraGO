@@ -199,28 +199,28 @@ fun AnimalDetailsScreen(
                         ActionItem(
                             icon = R.drawable.feed,
                             label = "Feeding",
-                            value = animal?.lastFeeding ?: "N/A",
+                            value = animal?.lastFeeding ?: "-",
                             onClick = { pendingAction = PendingAction.FEED }
                         )
                         ActionItem(
                             icon = R.drawable.water,
                             label = "Spray",
-                            value = animal?.lastSpray ?: "N/A",
+                            value = animal?.lastSpray ?: "-",
                             onClick = { pendingAction = PendingAction.SPRAY }
                         )
 
                         if (animal?.sizeType == 1L) {
-                            val moltDate = animal?.lastMolt ?: "N/A"
-                            val moltStage = if (animal?.size != null) "L${animal?.size}" else "N/A"
+                            val moltDate = animal?.lastMolt ?: "-"
+                            val moltStage = if (animal?.size != null) "L${animal?.size}" else "-"
                             ActionItem(
                                 icon = R.drawable.molt,
                                 label = "Molt",
-                                value = "$moltDate ($moltStage)",
+                                value = "$moltDate \n ($moltStage)",
                                 onClick = { pendingAction = PendingAction.MOLT }
                             )
                         } else {
                             val unit = if (animal?.sizeType == 0L) "cm" else "other"
-                            val sizeValue = if (animal?.size != null) "${animal?.size} $unit" else "N/A"
+                            val sizeValue = if (animal?.size != null) "${animal?.size} $unit" else "-"
                             ActionItem(
                                 icon = R.drawable.molt,
                                 label = "Size",
