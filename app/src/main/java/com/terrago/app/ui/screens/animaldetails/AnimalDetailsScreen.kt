@@ -66,8 +66,8 @@ fun AnimalDetailsScreen(
                         Button(
                             onClick = { onEditClick(animalId) },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Black,
-                                contentColor = Color.White
+                                containerColor = MaterialTheme.colorScheme.onSurface,
+                                contentColor = MaterialTheme.colorScheme.surface
                             ),
                             shape = RoundedCornerShape(20.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
@@ -140,7 +140,7 @@ fun AnimalDetailsScreen(
                     if (animal?.size != null) {
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = if (animal?.sizeType == 1L) "L${animal?.size}" else "${animal?.size} cm",
+                            text = if (animal?.sizeType == 1L) "L${animal?.size}" else "${animal?.size} ${if (animal?.sizeType == 0L) "cm" else "other"}",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -159,7 +159,6 @@ fun AnimalDetailsScreen(
                     // Habitat Details - Only show if present
                     if (!animal?.objectName.isNullOrBlank()) {
                         Spacer(Modifier.height(8.dp))
-                        // TODO: Fetch dimensions and location name from Objects table
                         Text(
                             text = "${animal?.objectName}",
                             style = MaterialTheme.typography.bodyMedium,
@@ -188,18 +187,31 @@ fun AnimalDetailsScreen(
                         ActionItem(
                             icon = R.drawable.feed,
                             label = "Feeding",
-                            daysAgo = animal?.lastFeeding ?: "never" // TODO: Calculate days ago from date
+                            daysAgo = animal?.lastFeeding ?: "-"
                         )
                         ActionItem(
                             icon = R.drawable.water,
                             label = "Spray",
-                            daysAgo = animal?.lastSpray ?: "never" // TODO: Calculate days ago from date
+                            daysAgo = animal?.lastSpray ?: "-"
                         )
-                        ActionItem(
-                            icon = R.drawable.molt,
-                            label = "Molt",
-                            daysAgo = animal?.lastMolt ?: "never" // TODO: Calculate days ago from date
-                        )
+
+                        if (animal?.sizeType == 1L) {
+                            val moltDate = animal?.lastMolt ?: "-"
+                            val moltStage = if (animal?.size != null) "L${animal?.size}" else "-"
+                            ActionItem(
+                                icon = R.drawable.molt,
+                                label = "Molt",
+                                daysAgo = "$moltDate ($moltStage)"
+                            )
+                        } else {
+                            val unit = if (animal?.sizeType == 0L) "cm" else "other"
+                            val sizeValue = if (animal?.size != null) "${animal?.size} $unit" else "-"
+                            ActionItem(
+                                icon = R.drawable.molt,
+                                label = "Size",
+                                daysAgo = sizeValue
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))

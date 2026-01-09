@@ -73,13 +73,13 @@ fun AnimalItem(
                     
                     if (animal.sizeType == 1L) {
                         // Case: Molt Stage (L7, L8 etc.)
-                        val moltDate = animal.lastMolt ?: "N/A"
-                        val moltStage = if (animal.size != null) "L${animal.size}" else "N/A"
+                        val moltDate = animal.lastMolt ?: "-"
+                        val moltStage = if (animal.size != null) "L${animal.size}" else "-"
                         StatusLine(label = "Last molt", value = "$moltDate ($moltStage)")
                     } else {
                         // Case: cm or other unit
                         val unit = if (animal.sizeType == 0L) "cm" else "other"
-                        val sizeValue = if (animal.size != null) "${animal.size} $unit" else "N/A"
+                        val sizeValue = if (animal.size != null) "${animal.size} $unit" else "-"
                         
                         StatusLine(label = "Size", value = sizeValue)
                     }
@@ -112,7 +112,7 @@ private fun StatusLine(label: String, value: String?) {
             fontWeight = FontWeight.Normal
         )
         Text(
-            text = value ?: "N/A",
+            text = value ?: "-",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
