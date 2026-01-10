@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -58,6 +59,29 @@ fun AnimalFormScreen(
     var specExp by remember { mutableStateOf(false) }
     var sizeTypeExp by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    var speciesSearchQuery by remember { 
+        mutableStateOf(sortedSpecies.find { it.species_id == viewModel.selectedSpecies }?.name_latin ?: "") 
+    }
+
+    // Update search query if selected species changes
+    LaunchedEffect(viewModel.selectedSpecies, sortedSpecies) {
+        val currentName = sortedSpecies.find { it.species_id == viewModel.selectedSpecies }?.name_latin ?: ""
+        if (speciesSearchQuery != currentName && !specExp) {
+            speciesSearchQuery = currentName
+        }
+    }
+
+    val filteredSpecies = remember(speciesSearchQuery, sortedSpecies) {
+        if (speciesSearchQuery.isEmpty() || sortedSpecies.any { it.name_latin == speciesSearchQuery }) {
+            sortedSpecies
+        } else {
+            sortedSpecies.filter { 
+                it.name_latin.contains(speciesSearchQuery, ignoreCase = true) ||
+                (it.name_common?.contains(speciesSearchQuery, ignoreCase = true) ?: false)
+            }
+        }
+    }
 
     val photoPicker = rememberPhotoPicker { bytes ->
         viewModel.photo = bytes
@@ -146,14 +170,17 @@ fun AnimalFormScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ExposedDropdownMenuBox(
                         expanded = specExp,
-                        onExpandedChange = { specExp = !specExp },
+                        onExpandedChange = { specExp = it },
                         modifier = Modifier.weight(1f)
                     ) {
                         OutlinedTextField(
-                            value = sortedSpecies.find { it.species_id == viewModel.selectedSpecies }?.name_latin ?: "Choose animal species...",
-                            onValueChange = {},
-                            readOnly = true,
+                            value = speciesSearchQuery,
+                            onValueChange = { 
+                                speciesSearchQuery = it
+                                specExp = true
+                            },
                             modifier = Modifier.menuAnchor().fillMaxWidth(),
+                            placeholder = { Text("Search species...") },
                             shape = RoundedCornerShape(8.dp),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -163,15 +190,29 @@ fun AnimalFormScreen(
                             ),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = specExp) }
                         )
-                        ExposedDropdownMenu(expanded = specExp, onDismissRequest = { specExp = false }) {
-                            sortedSpecies.forEach { spec ->
-                                DropdownMenuItem(
-                                    text = { Text(spec.name_latin) },
-                                    onClick = {
-                                        viewModel.selectedSpecies = spec.species_id
-                                        specExp = false
-                                    }
-                                )
+                        
+                        if (filteredSpecies.isNotEmpty()) {
+                            ExposedDropdownMenu(
+                                expanded = specExp,
+                                onDismissRequest = { specExp = false }
+                            ) {
+                                filteredSpecies.forEach { spec ->
+                                    DropdownMenuItem(
+                                        text = { 
+                                            Column {
+                                                Text(spec.name_latin, fontWeight = FontWeight.Bold)
+                                                if (!spec.name_common.isNullOrBlank()) {
+                                                    Text(spec.name_common, style = MaterialTheme.typography.bodySmall)
+                                                }
+                                            }
+                                        },
+                                        onClick = {
+                                            viewModel.selectedSpecies = spec.species_id
+                                            speciesSearchQuery = spec.name_latin
+                                            specExp = false
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
