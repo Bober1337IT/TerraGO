@@ -1,5 +1,7 @@
 package com.terrago.app.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModelFactory
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,6 +19,7 @@ import com.terrago.app.viewmodel.animalform.AnimalFormViewModelFactory
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost(database: TerraGoDatabase,  modifier: Modifier = Modifier) {
     val navController = rememberNavController()

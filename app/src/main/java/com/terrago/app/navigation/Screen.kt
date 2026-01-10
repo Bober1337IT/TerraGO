@@ -8,7 +8,12 @@ sealed class Screen(val route: String) {
         fun createRoute(id: Long) = "animal_details/$id"
     }
 
-    data object AnimalFormScreen : Screen("animalForm") {
-        fun createRoute() = "animalForm"
+    data object AnimalFormRoutes {
+        const val ADD = "animalForm"
+        const val EDIT = "animalForm/{animalId}"
+        const val NEW_HABITAT = "new_habitat"
+        const val NEW_SPECIES = "new_species"
+
+        fun edit(id: Long) = "animalForm/$id"
     }
 }

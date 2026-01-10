@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.terrago.app.R
-import com.terrago.app.navigation.graph.routes.AnimalFormRoutes
+import com.terrago.app.navigation.Screen.AnimalFormRoutes
 import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.components.photo.PhotoFromByteArray
 import com.terrago.app.ui.components.photo.rememberPhotoPicker
