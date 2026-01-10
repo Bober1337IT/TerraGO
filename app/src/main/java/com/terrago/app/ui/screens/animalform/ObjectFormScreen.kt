@@ -30,8 +30,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ObjectFormScreen(
-    viewModel: AnimalFormViewModel,
-    onBack: () -> Unit
+    viewModel: AnimalFormViewModel, onBack: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var locationName by remember { mutableStateOf("") }
@@ -54,59 +53,55 @@ fun ObjectFormScreen(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "Logo",
+                        modifier = Modifier.height(40.dp),
+                        tint = Color.Unspecified
+                    )
+                }, navigationIcon = {
+                    IconButton(onClick = onBack) {
                         Icon(
-                            painter = painterResource(id = R.drawable.logo),
-                            contentDescription = "Logo",
-                            modifier = Modifier.height(40.dp),
-                            tint = Color.Unspecified
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = Modifier
+                                .size(36.dp)
+                                .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                                .padding(4.dp)
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
+                    }
+                }, actions = {
+                    if (editingObjectId != null) {
+                        Button(
+                            onClick = {
+                                viewModel.deleteObject(editingObjectId!!)
+                                editingObjectId = null
+                                name = ""; width = ""; length = ""; height = ""; locationName =
+                                ""; description = ""
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                            shape = RoundedCornerShape(24.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                        ) {
+                            Text(
+                                "DELETE",
+                                color = MaterialTheme.colorScheme.onError,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp
+                            )
+                            Spacer(Modifier.width(4.dp))
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                                    .padding(4.dp)
+                                Icons.Default.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
                             )
                         }
-                    },
-                    actions = {
-                        if (editingObjectId != null) {
-                            Button(
-                                onClick = {
-                                    viewModel.deleteObject(editingObjectId!!)
-                                    editingObjectId = null
-                                    name = ""; width = ""; length = ""; height = ""; locationName =
-                                    ""; description = ""
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                                shape = RoundedCornerShape(24.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                            ) {
-                                Text(
-                                    "DELETE",
-                                    color = MaterialTheme.colorScheme.onError,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 12.sp
-                                )
-                                Spacer(Modifier.width(4.dp))
-                                Icon(
-                                    Icons.Default.Close,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        }
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                    }
+                }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
-            },
-            containerColor = MaterialTheme.colorScheme.background
+                )
+            }, containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -147,8 +142,7 @@ fun ObjectFormScreen(
                                         height = obj.height?.toString() ?: ""
                                         locationName = obj.location_name ?: ""
                                         description = obj.description ?: ""
-                                    }
-                                )
+                                    })
                             }
                         }
                         if (rowItems.size == 1) {
@@ -276,8 +270,7 @@ fun ObjectFormScreen(
                                     length = length.ifBlank { null }?.toLongOrNull(),
                                     width = width.ifBlank { null }?.toLongOrNull(),
                                     height = height.ifBlank { null }?.toLongOrNull(),
-                                    location = locationName.ifBlank { null }
-                                )
+                                    location = locationName.ifBlank { null })
                             } else {
                                 viewModel.updateObject(
                                     objectId = editingObjectId!!,
@@ -286,8 +279,7 @@ fun ObjectFormScreen(
                                     length = length.ifBlank { null }?.toLongOrNull(),
                                     width = width.ifBlank { null }?.toLongOrNull(),
                                     height = height.ifBlank { null }?.toLongOrNull(),
-                                    location = locationName.ifBlank { null }
-                                )
+                                    location = locationName.ifBlank { null })
                             }
                             if (editingObjectId == null) {
                                 onBack()
@@ -322,6 +314,10 @@ fun ObjectFormScreen(
                         )
                     }
                 }
+
+                // Keyboard spacer
+                Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.ime))
+
             }
         }
     }

@@ -43,31 +43,28 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.logo),
-                            contentDescription = "Logo",
-                            modifier = Modifier.height(40.dp),
-                            tint = Color.Unspecified
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                                    .padding(4.dp)
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    Icon(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "Logo",
+                        modifier = Modifier.height(40.dp),
+                        tint = Color.Unspecified
                     )
+                }, navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = Modifier
+                                .size(36.dp)
+                                .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                                .padding(4.dp)
+                        )
+                    }
+                }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
-            },
-            containerColor = MaterialTheme.colorScheme.background
+                )
+            }, containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -247,17 +244,34 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                             onBack()
                         }
                     },
-                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 32.dp),
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(bottom = 32.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(24.dp),
                     enabled = latinName.isNotBlank()
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Text("ACCEPT", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            "ACCEPT",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
                         Spacer(Modifier.width(8.dp))
-                        Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 }
+
+                // Keyboard spacer
+                Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.ime))
+
             }
         }
     }
