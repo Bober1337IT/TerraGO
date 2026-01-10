@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.terrago.app.R
 import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.screens.animalform.components.TerrariumCard
@@ -37,6 +39,8 @@ fun ObjectFormScreen(
     var length by remember { mutableStateOf("") }
     var width by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
+
+    var editingObjectId by remember { mutableStateOf<Long?>(null) }
 
     val objects by viewModel.availableObjects.collectAsState()
     val scope = rememberCoroutineScope()
@@ -69,6 +73,34 @@ fun ObjectFormScreen(
                             )
                         }
                     },
+                    actions = {
+                        if (editingObjectId != null) {
+                            Button(
+                                onClick = {
+                                    viewModel.deleteObject(editingObjectId!!)
+                                    editingObjectId = null
+                                    name = ""; width = ""; length = ""; height = ""; locationName =
+                                    ""; description = ""
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                                shape = RoundedCornerShape(24.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                            ) {
+                                Text(
+                                    "DELETE",
+                                    color = MaterialTheme.colorScheme.onError,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     )
@@ -86,7 +118,7 @@ fun ObjectFormScreen(
             ) {
                 // Choose existing
                 Label("Choose terrarium:")
-                
+
                 val chunks = sortedObjects.chunked(2)
                 chunks.forEach { rowItems ->
                     Row(
@@ -102,9 +134,19 @@ fun ObjectFormScreen(
                                     height = obj.height,
                                     description = obj.description,
                                     locationName = obj.location_name,
+                                    isSelected = editingObjectId == obj.object_id,
                                     onClick = {
                                         viewModel.selectedObject = obj.object_id
                                         onBack()
+                                    },
+                                    onLongClick = {
+                                        editingObjectId = obj.object_id
+                                        name = obj.name
+                                        width = obj.width?.toString() ?: ""
+                                        length = obj.length?.toString() ?: ""
+                                        height = obj.height?.toString() ?: ""
+                                        locationName = obj.location_name ?: ""
+                                        description = obj.description ?: ""
                                     }
                                 )
                             }
@@ -116,7 +158,7 @@ fun ObjectFormScreen(
                 }
 
                 Spacer(Modifier.height(8.dp))
-                Label("or add new one:")
+                Label(if (editingObjectId == null) "or add new one:" else "update selected one:")
 
                 // Name
                 OutlinedTextField(
@@ -227,26 +269,57 @@ fun ObjectFormScreen(
                 Button(
                     onClick = {
                         scope.launch {
-                            viewModel.insertObject(
-                                name = name,
-                                description = description.ifBlank { null },
-                                length = length.ifBlank { null }?.toLongOrNull(),
-                                width = width.ifBlank { null }?.toLongOrNull(),
-                                height = height.ifBlank { null }?.toLongOrNull(),
-                                location = locationName.ifBlank { null }
-                            )
-                            onBack()
+                            if (editingObjectId == null) {
+                                viewModel.insertObject(
+                                    name = name,
+                                    description = description.ifBlank { null },
+                                    length = length.ifBlank { null }?.toLongOrNull(),
+                                    width = width.ifBlank { null }?.toLongOrNull(),
+                                    height = height.ifBlank { null }?.toLongOrNull(),
+                                    location = locationName.ifBlank { null }
+                                )
+                            } else {
+                                viewModel.updateObject(
+                                    objectId = editingObjectId!!,
+                                    name = name,
+                                    description = description.ifBlank { null },
+                                    length = length.ifBlank { null }?.toLongOrNull(),
+                                    width = width.ifBlank { null }?.toLongOrNull(),
+                                    height = height.ifBlank { null }?.toLongOrNull(),
+                                    location = locationName.ifBlank { null }
+                                )
+                            }
+                            if (editingObjectId == null) {
+                                onBack()
+                            } else {
+                                editingObjectId = null
+                                name = ""; width = ""; length = ""; height = ""; locationName =
+                                    ""; description = ""
+                            }
                         }
                     },
-                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 32.dp),
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(bottom = 32.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(24.dp),
                     enabled = name.isNotBlank()
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Text("ACCEPT", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            if (editingObjectId == null) "ACCEPT" else "UPDATE",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
                         Spacer(Modifier.width(8.dp))
-                        Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 }
             }

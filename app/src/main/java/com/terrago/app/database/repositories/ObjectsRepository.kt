@@ -43,4 +43,28 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
         )
     }
 
+    suspend fun updateObject(
+        objectId: Long,
+        name: String,
+        description: String? = null,
+        length: Long? = null,
+        width: Long? = null,
+        height: Long? = null,
+        locationName: String? = null
+    ) {
+        db.objectsQueries.updateObject(
+            name,
+            description,
+            length,
+            width,
+            height,
+            locationName,
+            objectId
+        )
+    }
+
+    suspend fun deleteObject(objectId: Long) {
+        db.objectsQueries.deleteObject(objectId)
+    }
+
 }

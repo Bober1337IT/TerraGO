@@ -182,6 +182,45 @@ class AnimalFormViewModel(
         }
     }
 
+    suspend fun updateObject(
+        objectId: Long,
+        name: String,
+        description: String?,
+        length: Long?,
+        width: Long?,
+        height: Long?,
+        location: String?
+    ) = withContext(Dispatchers.IO) {
+        try {
+            objectsRepository.updateObject(
+                objectId = objectId,
+                name = name,
+                description = description,
+                length = length,
+                width = width,
+                height = height,
+                locationName = location
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun deleteObject(objectId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                objectsRepository.deleteObject(objectId)
+                if (selectedObject == objectId) {
+                    withContext(Dispatchers.Main) {
+                        selectedObject = null
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     suspend fun insertSpecies(
         latinName: String,
         commonName: String?,

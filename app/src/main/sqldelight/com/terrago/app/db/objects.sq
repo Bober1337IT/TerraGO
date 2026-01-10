@@ -17,3 +17,16 @@ SELECT * FROM objects WHERE object_id = ?;
 insertObject:
 INSERT INTO objects(name, description, length, width, height, location_name)
 VALUES (?, ?, ?, ?, ?, ?);
+
+updateObject:
+UPDATE objects
+SET name = ?,
+    description = ?,
+    length = ?,
+    width = ?,
+    height = ?,
+    location_name = ?
+WHERE object_id = ?;
+
+deleteObject:
+DELETE FROM objects WHERE object_id = ?;
