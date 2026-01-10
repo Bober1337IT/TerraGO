@@ -6,7 +6,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -37,6 +36,7 @@ import com.terrago.app.ui.components.photo.rememberPhotoPicker
 import com.terrago.app.ui.screens.animalform.components.GenderButton
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
+import com.terrago.app.ui.screens.animalform.components.DeleteConfirmationDialog
 import kotlinx.coroutines.flow.first
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -57,6 +57,7 @@ fun AnimalFormScreen(
 
     var specExp by remember { mutableStateOf(false) }
     var sizeTypeExp by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     val photoPicker = rememberPhotoPicker { bytes ->
         viewModel.photo = bytes
@@ -114,10 +115,7 @@ fun AnimalFormScreen(
                     actions = {
                         if (animalId != null) {
                             Button(
-                                onClick = {
-                                    viewModel.deleteAnimal(animalId)
-                                    onBack()
-                                },
+                                onClick = { showDeleteDialog = true },
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                                 shape = RoundedCornerShape(24.dp),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
@@ -311,16 +309,34 @@ fun AnimalFormScreen(
 
                 // Photo
                 Label("Animal photo (optional):")
-                Button(
-                    onClick = { photoPicker.launchGallery() },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Select image", fontWeight = FontWeight.Bold)
+                    Button(
+                        onClick = { photoPicker.launchGallery() },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                    ) {
+                        Text("Gallery", fontWeight = FontWeight.Bold)
+                    }
+                    Button(
+                        onClick = { photoPicker.launchCamera() },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                    ) {
+                        Text("Camera", fontWeight = FontWeight.Bold)
+                    }
                 }
                 if (viewModel.photo != null) {
                     PhotoFromByteArray(bytes = viewModel.photo, modifier = Modifier.size(120.dp).clip(RoundedCornerShape(8.dp)))
@@ -381,6 +397,18 @@ fun AnimalFormScreen(
                     }
                 }
             }
+        }
+
+        if (showDeleteDialog && animalId != null) {
+            DeleteConfirmationDialog(
+                onDismiss = { showDeleteDialog = false },
+                onConfirm = {
+                    viewModel.deleteAnimal(animalId)
+                    showDeleteDialog = false
+                    onBack()
+                    onBack()
+                }
+            )
         }
     }
 }
