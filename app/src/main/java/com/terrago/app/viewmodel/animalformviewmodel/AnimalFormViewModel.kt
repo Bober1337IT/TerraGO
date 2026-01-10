@@ -35,6 +35,29 @@ class AnimalFormViewModel(
     var notes by mutableStateOf("")
     var photo by mutableStateOf<ByteArray?>(null)
 
+    private var loadedAnimalId: Long? = null
+
+    fun loadAnimal(id: Long) {
+        if (loadedAnimalId == id) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val animal = animalsRepository.getAnimalById(id).first()
+            animal?.let {
+                withContext(Dispatchers.Main) {
+                    name = it.name ?: ""
+                    selectedObject = it.object_id
+                    selectedSpecies = it.species_id
+                    birthDate = it.birth_date ?: ""
+                    gender = it.gender ?: ""
+                    size = it.size?.toString() ?: ""
+                    sizeType = it.size_type ?: 0
+                    notes = it.notes ?: ""
+                    photo = it.photo
+                    loadedAnimalId = id
+                }
+            }
+        }
+    }
+
     // Function to clear the form after saving
     fun clearForm() {
         name = ""
@@ -46,6 +69,7 @@ class AnimalFormViewModel(
         sizeType = 0L
         notes = ""
         photo = null
+        loadedAnimalId = null
     }
 
     val availableObjects: StateFlow<List<Objects>> = objectsRepository.getAllObjects().stateIn(
@@ -130,36 +154,35 @@ class AnimalFormViewModel(
         }
     }
 
-    fun insertObject(
+    suspend fun insertObject(
         name: String,
         description: String?,
         length: Long?,
         width: Long?,
         height: Long?,
         location: String?
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                objectsRepository.insertObject(
-                    name = name,
-                    description = description,
-                    length = length,
-                    width = width,
-                    height = height,
-                    locationName = location
-                )
-                val lastId = objectsRepository.getAllObjects().first()
-                    .maxByOrNull { it.object_id }?.object_id
-                withContext(Dispatchers.Main) {
-                    selectedObject = lastId
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+    ) = withContext(Dispatchers.IO) {
+        try {
+            objectsRepository.insertObject(
+                name = name,
+                description = description,
+                length = length,
+                width = width,
+                height = height,
+                locationName = location
+            )
+            // Explicitly fetch latest to select it
+            val lastId = objectsRepository.getAllObjects().first()
+                .maxByOrNull { it.object_id }?.object_id
+            withContext(Dispatchers.Main) {
+                selectedObject = lastId
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
-    fun insertSpecies(
+    suspend fun insertSpecies(
         latinName: String,
         commonName: String?,
         description: String?,
@@ -168,28 +191,26 @@ class AnimalFormViewModel(
         humidityMin: Double?,
         humidityMax: Double?,
         lightCycleH: Long?
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                speciesRepository.insertSpecies(
-                    nameLatin = latinName,
-                    nameCommon = commonName,
-                    description = description,
-                    temperatureMin = temperatureMin,
-                    temperatureMax = temperatureMax,
-                    humidityMin = humidityMin,
-                    humidityMax = humidityMax,
-                    lightCycleH = lightCycleH
-                )
-                val lastId = speciesRepository.getAllSpecies().first()
-                    .maxByOrNull { it.species_id }?.species_id
-                withContext(Dispatchers.Main) {
-                    selectedSpecies = lastId
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+    ) = withContext(Dispatchers.IO) {
+        try {
+            speciesRepository.insertSpecies(
+                nameLatin = latinName,
+                nameCommon = commonName,
+                description = description,
+                temperatureMin = temperatureMin,
+                temperatureMax = temperatureMax,
+                humidityMin = humidityMin,
+                humidityMax = humidityMax,
+                lightCycleH = lightCycleH
+            )
+            // Explicitly fetch latest to select it
+            val lastId = speciesRepository.getAllSpecies().first()
+                .maxByOrNull { it.species_id }?.species_id
+            withContext(Dispatchers.Main) {
+                selectedSpecies = lastId
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }
-

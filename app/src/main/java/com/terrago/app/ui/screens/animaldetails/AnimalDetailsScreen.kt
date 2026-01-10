@@ -28,9 +28,9 @@ import com.terrago.app.ui.components.enumclasses.PendingAction
 import com.terrago.app.ui.screens.animaldetails.components.ActionConfirmationDialog
 import com.terrago.app.ui.screens.animaldetails.components.ActionItem
 import com.terrago.app.ui.components.UpdateSizeDialog
+import com.terrago.app.ui.screens.animaldetails.components.GenderIcon
 import com.terrago.app.ui.screens.animaldetails.components.ObjectExpandableInfo
 import com.terrago.app.ui.screens.animaldetails.components.SpeciesExpandableInfo
-import com.terrago.app.ui.screens.animaldetails.components.GenderIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +41,7 @@ fun AnimalDetailsScreen(
     onEditClick: (Long) -> Unit
 ) {
     val animal by viewModel.getAnimalDetails(animalId).collectAsState(initial = null)
-    
+
     var showSizeDialog by remember { mutableStateOf(false) }
     var pendingAction by remember { mutableStateOf(PendingAction.NONE) }
     var newSizeText by remember { mutableStateOf("") }
@@ -74,8 +74,8 @@ fun AnimalDetailsScreen(
                         Button(
                             onClick = { onEditClick(animalId) },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.onSurface,
-                                contentColor = MaterialTheme.colorScheme.surface
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
                             ),
                             shape = RoundedCornerShape(20.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
@@ -105,7 +105,8 @@ fun AnimalDetailsScreen(
                     .fillMaxSize()
                     .padding(16.dp),
                 shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                tonalElevation = 2.dp
             ) {
                 Column(
                     modifier = Modifier
@@ -136,9 +137,9 @@ fun AnimalDetailsScreen(
                                 text = animal?.animalName!!,
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.primary
                             )
-                            
+
                             GenderIcon(
                                 gender = animal?.gender,
                                 modifier = Modifier.padding(start = 8.dp)
@@ -152,7 +153,7 @@ fun AnimalDetailsScreen(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         val latinName = animal?.speciesLatinName ?: "Unknown Species"
-                        
+
                         SpeciesExpandableInfo(
                             latinName = latinName,
                             commonName = animal?.speciesCommonName,
@@ -162,7 +163,9 @@ fun AnimalDetailsScreen(
                             humMin = animal?.speciesHumMin,
                             humMax = animal?.speciesHumMax,
                             lightCycle = animal?.speciesLightCycle,
-                            gender = if(animal?.animalName.isNullOrBlank()) {animal?.gender} else null
+                            gender = if (animal?.animalName.isNullOrBlank()) {
+                                animal?.gender
+                            } else null
                         )
                     }
 
@@ -220,7 +223,8 @@ fun AnimalDetailsScreen(
                             )
                         } else {
                             val unit = if (animal?.sizeType == 0L) "cm" else "other"
-                            val sizeValue = if (animal?.size != null) "${animal?.size} $unit" else "-"
+                            val sizeValue =
+                                if (animal?.size != null) "${animal?.size} $unit" else "-"
                             ActionItem(
                                 icon = R.drawable.molt,
                                 label = "Size",
@@ -264,7 +268,7 @@ fun AnimalDetailsScreen(
                 pendingAction = PendingAction.NONE
             }
         )
-        
+
         // Size Update Dialog
         if (showSizeDialog) {
             UpdateSizeDialog(

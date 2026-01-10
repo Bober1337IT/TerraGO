@@ -22,6 +22,8 @@ import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.screens.animalform.components.TerrariumCard
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +39,11 @@ fun ObjectFormScreen(
     var height by remember { mutableStateOf("") }
 
     val objects by viewModel.availableObjects.collectAsState()
+    val scope = rememberCoroutineScope()
+
+    val sortedObjects = remember(objects) {
+        objects.sortedBy { it.name }
+    }
 
     TerraGOTheme(dynamicColor = false) {
         Scaffold(
@@ -75,12 +82,12 @@ fun ObjectFormScreen(
                     .padding(padding)
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Choose existing
                 Label("Choose terrarium:")
                 
-                val chunks = objects.chunked(2)
+                val chunks = sortedObjects.chunked(2)
                 chunks.forEach { rowItems ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -219,15 +226,17 @@ fun ObjectFormScreen(
                 // Accept Button
                 Button(
                     onClick = {
-                        viewModel.insertObject(
-                            name = name,
-                            description = description.ifBlank { null },
-                            length = length.ifBlank { null }?.toLongOrNull(),
-                            width = width.ifBlank { null }?.toLongOrNull(),
-                            height = height.ifBlank { null }?.toLongOrNull(),
-                            location = locationName.ifBlank { null }
-                        )
-                        onBack()
+                        scope.launch {
+                            viewModel.insertObject(
+                                name = name,
+                                description = description.ifBlank { null },
+                                length = length.ifBlank { null }?.toLongOrNull(),
+                                width = width.ifBlank { null }?.toLongOrNull(),
+                                height = height.ifBlank { null }?.toLongOrNull(),
+                                location = locationName.ifBlank { null }
+                            )
+                            onBack()
+                        }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 32.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),

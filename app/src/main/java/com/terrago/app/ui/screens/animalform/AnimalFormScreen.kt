@@ -38,7 +38,6 @@ import com.terrago.app.ui.screens.animalform.components.GenderButton
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 import com.terrago.app.ui.screens.animalform.components.DeleteConfirmationDialog
-import kotlinx.coroutines.flow.first
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,15 +59,16 @@ fun AnimalFormScreen(
     var sizeTypeExp by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
+    // Search state for species
     var speciesSearchQuery by remember { 
-        mutableStateOf(sortedSpecies.find { it.species_id == viewModel.selectedSpecies }?.name_latin ?: "") 
+        mutableStateOf("") 
     }
-
-    // Update search query if selected species changes
+    
+    // Sync search query with selected species initially or when loaded
     LaunchedEffect(viewModel.selectedSpecies, sortedSpecies) {
-        val currentName = sortedSpecies.find { it.species_id == viewModel.selectedSpecies }?.name_latin ?: ""
-        if (speciesSearchQuery != currentName && !specExp) {
-            speciesSearchQuery = currentName
+        val selected = sortedSpecies.find { it.species_id == viewModel.selectedSpecies }
+        if (selected != null && speciesSearchQuery != selected.name_latin) {
+            speciesSearchQuery = selected.name_latin
         }
     }
 
@@ -93,19 +93,8 @@ fun AnimalFormScreen(
     }
 
     LaunchedEffect(animalId) {
-        if (animalId != null && viewModel.name.isEmpty()) {
-            val animal = viewModel.getAnimalById(animalId).first()
-            animal?.let {
-                viewModel.name = it.name ?: ""
-                viewModel.selectedObject = it.object_id
-                viewModel.selectedSpecies = it.species_id
-                viewModel.birthDate = it.birth_date ?: ""
-                viewModel.gender = it.gender ?: ""
-                viewModel.size = it.size?.toString() ?: ""
-                viewModel.sizeType = it.size_type ?: 0
-                viewModel.notes = it.notes ?: ""
-                viewModel.photo = it.photo
-            }
+        if (animalId != null) {
+            viewModel.loadAnimal(animalId)
         }
     }
 
@@ -165,7 +154,7 @@ fun AnimalFormScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Species
+                // Species Search Bar
                 Label("Animal species:")
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ExposedDropdownMenuBox(
@@ -225,7 +214,7 @@ fun AnimalFormScreen(
                     }
                 }
 
-                // Habitat
+                // Habitat Button
                 Label("Choose Habitat:")
                 Button(
                     onClick = { navController.navigate(AnimalFormRoutes.NEW_HABITAT) },
@@ -350,10 +339,7 @@ fun AnimalFormScreen(
 
                 // Photo
                 Label("Animal photo (optional):")
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(
                         onClick = { photoPicker.launchGallery() },
                         modifier = Modifier.weight(1f),

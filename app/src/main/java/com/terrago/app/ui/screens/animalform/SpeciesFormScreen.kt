@@ -21,6 +21,7 @@ import com.terrago.app.R
 import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +35,8 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
     var humMin by remember { mutableStateOf("") }
     var humMax by remember { mutableStateOf("") }
     var lightCycle by remember { mutableStateOf("") }
+
+    val scope = rememberCoroutineScope()
 
     TerraGOTheme(dynamicColor = false) {
         Scaffold(
@@ -230,17 +233,19 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                 // Accept Button
                 Button(
                     onClick = {
-                        viewModel.insertSpecies(
-                            latinName = latinName,
-                            commonName = commonName.ifBlank { null },
-                            description = description.ifBlank { null },
-                            temperatureMin = tempMin.ifBlank { null }?.toDoubleOrNull(),
-                            temperatureMax = tempMax.ifBlank { null }?.toDoubleOrNull(),
-                            humidityMin = humMin.ifBlank { null }?.toDoubleOrNull(),
-                            humidityMax = humMax.ifBlank { null }?.toDoubleOrNull(),
-                            lightCycleH = lightCycle.ifBlank { null }?.toLongOrNull()
-                        )
-                        onBack()
+                        scope.launch {
+                            viewModel.insertSpecies(
+                                latinName = latinName,
+                                commonName = commonName.ifBlank { null },
+                                description = description.ifBlank { null },
+                                temperatureMin = tempMin.ifBlank { null }?.toDoubleOrNull(),
+                                temperatureMax = tempMax.ifBlank { null }?.toDoubleOrNull(),
+                                humidityMin = humMin.ifBlank { null }?.toDoubleOrNull(),
+                                humidityMax = humMax.ifBlank { null }?.toDoubleOrNull(),
+                                lightCycleH = lightCycle.ifBlank { null }?.toLongOrNull()
+                            )
+                            onBack()
+                        }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 32.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
