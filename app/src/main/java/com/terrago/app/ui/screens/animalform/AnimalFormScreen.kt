@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -48,7 +49,11 @@ fun AnimalFormScreen(
     onBack: () -> Unit
 ) {
     val objects by viewModel.availableObjects.collectAsState()
-    val species by viewModel.availableSpecies.collectAsState()
+    val speciesList by viewModel.availableSpecies.collectAsState()
+
+    val sortedSpecies = remember(speciesList) {
+        speciesList.sortedBy { it.name_latin }
+    }
 
     var specExp by remember { mutableStateOf(false) }
     var sizeTypeExp by remember { mutableStateOf(false) }
@@ -147,7 +152,7 @@ fun AnimalFormScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         OutlinedTextField(
-                            value = species.find { it.species_id == viewModel.selectedSpecies }?.name_latin ?: "Choose animal species...",
+                            value = sortedSpecies.find { it.species_id == viewModel.selectedSpecies }?.name_latin ?: "Choose animal species...",
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier.menuAnchor().fillMaxWidth(),
@@ -161,7 +166,7 @@ fun AnimalFormScreen(
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = specExp) }
                         )
                         ExposedDropdownMenu(expanded = specExp, onDismissRequest = { specExp = false }) {
-                            species.forEach { spec ->
+                            sortedSpecies.forEach { spec ->
                                 DropdownMenuItem(
                                     text = { Text(spec.name_latin) },
                                     onClick = {
