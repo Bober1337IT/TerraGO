@@ -19,7 +19,9 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.TerraGO">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.TerraGO"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
