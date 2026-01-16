@@ -35,6 +35,11 @@ class AnimalFormViewModel(
     var notes by mutableStateOf("")
     var photo by mutableStateOf<ByteArray?>(null)
 
+    // Hidden form state to preserve care dates during edit
+    var lastFeeding by mutableStateOf<String?>(null)
+    var lastSpray by mutableStateOf<String?>(null)
+    var lastMolt by mutableStateOf<String?>(null)
+
     private var loadedAnimalId: Long? = null
 
     fun loadAnimal(id: Long) {
@@ -52,6 +57,12 @@ class AnimalFormViewModel(
                     sizeType = it.size_type ?: 0
                     notes = it.notes ?: ""
                     photo = it.photo
+                    
+                    // Populate hidden fields
+                    lastFeeding = it.last_feeding
+                    lastSpray = it.last_spray
+                    lastMolt = it.last_molt
+                    
                     loadedAnimalId = id
                 }
             }
@@ -69,6 +80,9 @@ class AnimalFormViewModel(
         sizeType = 0L
         notes = ""
         photo = null
+        lastFeeding = null
+        lastSpray = null
+        lastMolt = null
         loadedAnimalId = null
     }
 
