@@ -86,6 +86,7 @@ fun AnimalFormScreen(
     navController: NavController,
     onBack: () -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val objects by viewModel.availableObjects.collectAsStateWithLifecycle()
     val species by viewModel.availableSpecies.collectAsStateWithLifecycle()
 
@@ -103,8 +104,8 @@ fun AnimalFormScreen(
     }
 
     // Sync search query with selected species initially or when loaded
-    LaunchedEffect(viewModel.selectedSpecies, sortedSpecies) {
-        val selected = sortedSpecies.find { it.species_id == viewModel.selectedSpecies }
+    LaunchedEffect(uiState.selectedSpecies, sortedSpecies) {
+        val selected = sortedSpecies.find { it.species_id == uiState.selectedSpecies }
         if (selected != null && speciesSearchQuery != selected.name_latin) {
             speciesSearchQuery = selected.name_latin
         }
@@ -124,7 +125,7 @@ fun AnimalFormScreen(
     }
 
     val photoPicker = rememberPhotoPicker { bytes ->
-        viewModel.photo = bytes
+        viewModel.updateState { it.copy(photo = bytes) }
     }
 
     BackHandler {
@@ -241,7 +242,7 @@ fun AnimalFormScreen(
                                             }
                                         }
                                     }, onClick = {
-                                        viewModel.selectedSpecies = spec.species_id
+                                        viewModel.updateState { it.copy(selectedSpecies = spec.species_id) }
                                         speciesSearchQuery = spec.name_latin
                                         specExp = false
                                     })
@@ -278,7 +279,7 @@ fun AnimalFormScreen(
                     )
                 ) {
                     Text(
-                        text = objects.find { it.object_id == viewModel.selectedObject }?.name
+                        text = objects.find { it.object_id == uiState.selectedObject }?.name
                             ?: "Select habitat", fontWeight = FontWeight.Bold
                     )
                 }
@@ -286,8 +287,8 @@ fun AnimalFormScreen(
                 // Name
                 Label("Animal name (optional):")
                 OutlinedTextField(
-                    value = viewModel.name,
-                    onValueChange = { viewModel.name = it },
+                    value = uiState.name,
+                    onValueChange = { newValue -> viewModel.updateState { it.copy(name = newValue) } },
                     placeholder = { Text("Enter animal name...") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
@@ -305,7 +306,7 @@ fun AnimalFormScreen(
                 var showDatePicker by remember { mutableStateOf(false) }
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = viewModel.birthDate,
+                        value = uiState.birthDate,
                         onValueChange = {},
                         readOnly = true,
                         placeholder = { Text("Enter birth date (DD-MM-YYYY)...") },
@@ -336,9 +337,10 @@ fun AnimalFormScreen(
                                 datePickerState.selectedDateMillis?.let { millis ->
                                     val date = java.time.Instant.ofEpochMilli(millis)
                                         .atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-                                    viewModel.birthDate = "%02d-%02d-%04d".format(
+                                    val formattedDate = "%02d-%02d-%04d".format(
                                         date.dayOfMonth, date.monthValue, date.year
                                     )
+                                    viewModel.updateState { it.copy(birthDate = formattedDate) }
                                 }
                                 showDatePicker = false
                             }) { Text("OK") }
@@ -356,12 +358,14 @@ fun AnimalFormScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    GenderButton("Male", viewModel.gender == "Male") { viewModel.gender = "Male" }
-                    GenderButton("Female", viewModel.gender == "Female") {
-                        viewModel.gender = "Female"
+                    GenderButton("Male", uiState.gender == "Male") {
+                        viewModel.updateState { it.copy(gender = "Male") }
                     }
-                    GenderButton("Not Sexed", viewModel.gender == "Not Sexed") {
-                        viewModel.gender = "Not Sexed"
+                    GenderButton("Female", uiState.gender == "Female") {
+                        viewModel.updateState { it.copy(gender = "Female") }
+                    }
+                    GenderButton("Not Sexed", uiState.gender == "Not Sexed") {
+                        viewModel.updateState { it.copy(gender = "Not Sexed") }
                     }
                 }
 
@@ -377,7 +381,7 @@ fun AnimalFormScreen(
                         modifier = Modifier.width(100.dp)
                     ) {
                         OutlinedTextField(
-                            value = when (viewModel.sizeType) {
+                            value = when (uiState.sizeType) {
                                 0L -> "cm"; 1L -> "L"; else -> "other"
                             },
                             onValueChange = {},
@@ -395,19 +399,28 @@ fun AnimalFormScreen(
                             expanded = sizeTypeExp, onDismissRequest = { sizeTypeExp = false }) {
                             DropdownMenuItem(
                                 text = { Text("cm") },
-                                onClick = { viewModel.sizeType = 0; sizeTypeExp = false })
+                                onClick = {
+                                    viewModel.updateState { it.copy(sizeType = 0L) }
+                                    sizeTypeExp = false
+                                })
                             DropdownMenuItem(
                                 text = { Text("L") },
-                                onClick = { viewModel.sizeType = 1; sizeTypeExp = false })
+                                onClick = {
+                                    viewModel.updateState { it.copy(sizeType = 1L) }
+                                    sizeTypeExp = false
+                                })
                             DropdownMenuItem(
                                 text = { Text("other") },
-                                onClick = { viewModel.sizeType = 2; sizeTypeExp = false })
+                                onClick = {
+                                    viewModel.updateState { it.copy(sizeType = 2L) }
+                                    sizeTypeExp = false
+                                })
                         }
                     }
                     Spacer(Modifier.width(8.dp))
                     OutlinedTextField(
-                        value = viewModel.size,
-                        onValueChange = { viewModel.size = it },
+                        value = uiState.size,
+                        onValueChange = { newValue -> viewModel.updateState { it.copy(size = newValue) } },
                         placeholder = { Text("Enter animal size...") },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp),
@@ -455,9 +468,9 @@ fun AnimalFormScreen(
                         Text("Camera", fontWeight = FontWeight.Bold)
                     }
                 }
-                if (viewModel.photo != null) {
+                if (uiState.photo != null) {
                     PhotoFromByteArray(
-                        bytes = viewModel.photo,
+                        bytes = uiState.photo,
                         modifier = Modifier
                             .size(120.dp)
                             .clip(RoundedCornerShape(8.dp))
@@ -467,8 +480,8 @@ fun AnimalFormScreen(
                 // Notes
                 Label("Additional notes (optional):")
                 OutlinedTextField(
-                    value = viewModel.notes,
-                    onValueChange = { viewModel.notes = it },
+                    value = uiState.notes,
+                    onValueChange = { newValue -> viewModel.updateState { it.copy(notes = newValue) } },
                     placeholder = { Text("Enter notes...") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -487,23 +500,23 @@ fun AnimalFormScreen(
                 // Accept Button
                 Button(
                     onClick = {
-                        val objId = viewModel.selectedObject
-                        val specId = viewModel.selectedSpecies
+                        val objId = uiState.selectedObject
+                        val specId = uiState.selectedSpecies
                         if (objId != null && specId != null) {
                             viewModel.insertAnimal(
                                 animalId = animalId,
                                 objectId = objId,
                                 speciesId = specId,
-                                name = viewModel.name.ifBlank { null },
-                                gender = viewModel.gender.ifBlank { null },
-                                birthDate = viewModel.birthDate.ifBlank { null },
+                                name = uiState.name.ifBlank { null },
+                                gender = uiState.gender.ifBlank { null },
+                                birthDate = uiState.birthDate.ifBlank { null },
                                 lastFeeding = viewModel.lastFeeding,
                                 lastSpray = viewModel.lastSpray,
                                 lastMolt = viewModel.lastMolt,
-                                size = viewModel.size.toLongOrNull(),
-                                sizeType = viewModel.sizeType,
-                                notes = viewModel.notes.ifBlank { null },
-                                photo = viewModel.photo
+                                size = uiState.size.toLongOrNull(),
+                                sizeType = uiState.sizeType,
+                                notes = uiState.notes.ifBlank { null },
+                                photo = uiState.photo
                             )
                             viewModel.clearForm()
                             onBack()
@@ -514,7 +527,7 @@ fun AnimalFormScreen(
                         .padding(bottom = 32.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(24.dp),
-                    enabled = viewModel.selectedObject != null && viewModel.selectedSpecies != null
+                    enabled = uiState.selectedObject != null && uiState.selectedSpecies != null
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -544,7 +557,6 @@ fun AnimalFormScreen(
             DeleteConfirmationDialog(onDismiss = { showDeleteDialog = false }, onConfirm = {
                 viewModel.deleteAnimal(animalId)
                 showDeleteDialog = false
-                onBack()
                 onBack()
             })
         }

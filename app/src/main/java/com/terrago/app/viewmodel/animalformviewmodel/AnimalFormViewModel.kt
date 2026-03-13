@@ -1,7 +1,6 @@
 package com.terrago.app.viewmodel.animalformviewmodel
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -12,10 +11,13 @@ import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.Objects
 import com.terrago.app.db.Species
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -25,32 +27,17 @@ class AnimalFormViewModel(
     private val speciesRepository: SpeciesRepository
 ) : ViewModel() {
 
-    // Form state
-    var name by mutableStateOf("")
-    var selectedObject by mutableStateOf<Long?>(null)
-    var selectedSpecies by mutableStateOf<Long?>(null)
-    var birthDate by mutableStateOf("")
-    var gender by mutableStateOf("")
-    var size by mutableStateOf("")
-    var sizeType by mutableLongStateOf(0L)
-    var notes by mutableStateOf("")
-    var photo by mutableStateOf<ByteArray?>(null)
+    // Internal mutable source that holds the current state of the entire form
+    private val _uiState = MutableStateFlow(AnimalFormUiState())
+    // Public read-only stream that the UI observes to refresh its components
+    val uiState: StateFlow<AnimalFormUiState> = _uiState.asStateFlow()
 
-    var speciesLatinName by mutableStateOf("")
-    var speciesCommonName by mutableStateOf("")
-    var speciesDescription by mutableStateOf("")
-    var speciesTempMin by mutableStateOf("")
-    var speciesTempMax by mutableStateOf("")
-    var speciesHumMin by mutableStateOf("")
-    var speciesHumMax by mutableStateOf("")
-    var speciesLightCycle by mutableStateOf("")
 
-    var objectName by mutableStateOf("")
-    var objectLocationName by mutableStateOf("")
-    var objectDescription by mutableStateOf("")
-    var objectLength by mutableStateOf("")
-    var objectWidth by mutableStateOf("")
-    var objectHeight by mutableStateOf("")
+    // A function that allows the UI to modify any part of the state
+    // It takes the current state, applies your changes via .copy() and pushes the new version to the UI
+    fun updateState(transform: (AnimalFormUiState) -> AnimalFormUiState) {
+        _uiState.update(transform)
+    }
 
     // Hidden form state to preserve care dates during edit
     var lastFeeding by mutableStateOf<String?>(null)
@@ -61,42 +48,40 @@ class AnimalFormViewModel(
 
     fun loadAnimal(id: Long) {
         if (loadedAnimalId == id) return
+
         viewModelScope.launch(Dispatchers.IO) {
             val animal = animalsRepository.getAnimalById(id).first()
-            animal?.let {
-                withContext(Dispatchers.Main) {
-                    name = it.name ?: ""
-                    selectedObject = it.object_id
-                    selectedSpecies = it.species_id
-                    birthDate = it.birth_date ?: ""
-                    gender = it.gender ?: ""
-                    size = it.size?.toString() ?: ""
-                    sizeType = it.size_type ?: 0
-                    notes = it.notes ?: ""
-                    photo = it.photo
 
-                    // Populate hidden fields
+            animal?.let {
+                _uiState.update { state ->
+                    state.copy(
+                        name = it.name ?: "",
+                        selectedObject = it.object_id,
+                        selectedSpecies = it.species_id,
+                        birthDate = it.birth_date ?: "",
+                        gender = it.gender ?: "",
+                        size = it.size?.toString() ?: "",
+                        sizeType = it.size_type ?: 0L,
+                        notes = it.notes ?: "",
+                        photo = it.photo
+                    )
+                }
+
+                // Populate hidden fields
+                withContext(Dispatchers.Main) {
                     lastFeeding = it.last_feeding
                     lastSpray = it.last_spray
                     lastMolt = it.last_molt
-
-                    loadedAnimalId = id
                 }
+
+                loadedAnimalId = id
             }
         }
     }
 
     // Function to clear the form after saving
     fun clearForm() {
-        name = ""
-        selectedObject = null
-        selectedSpecies = null
-        birthDate = ""
-        gender = ""
-        size = ""
-        sizeType = 0L
-        notes = ""
-        photo = null
+        _uiState.update { AnimalFormUiState() }
         lastFeeding = null
         lastSpray = null
         lastMolt = null
@@ -104,23 +89,31 @@ class AnimalFormViewModel(
     }
 
     fun clearSpeciesFields() {
-        speciesLatinName = ""
-        speciesCommonName = ""
-        speciesDescription = ""
-        speciesTempMin = ""
-        speciesTempMax = ""
-        speciesHumMin = ""
-        speciesHumMax = ""
-        speciesLightCycle = ""
+        _uiState.update { state ->
+            state.copy(
+                speciesLatinName = "",
+                speciesCommonName = "",
+                speciesDescription = "",
+                speciesTempMin = "",
+                speciesTempMax = "",
+                speciesHumMin = "",
+                speciesHumMax = "",
+                speciesLightCycle = ""
+            )
+        }
     }
 
     fun clearObjectFields() {
-        objectName = ""
-        objectLocationName = ""
-        objectDescription = ""
-        objectLength = ""
-        objectWidth = ""
-        objectHeight = ""
+        _uiState.update { state ->
+            state.copy(
+                objectName = "",
+                objectLocationName = "",
+                objectDescription = "",
+                objectLength = "",
+                objectWidth = "",
+                objectHeight = ""
+            )
+        }
     }
 
     val availableObjects: StateFlow<List<Objects>> = objectsRepository.getAllObjects().stateIn(
@@ -227,7 +220,7 @@ class AnimalFormViewModel(
                 val lastId = objectsRepository.getAllObjects().first()
                     .maxByOrNull { it.object_id }?.object_id
                 withContext(Dispatchers.Main) {
-                    selectedObject = lastId
+                    _uiState.update { it.copy(selectedObject = lastId) }
                     clearObjectFields()
                 }
             } catch (e: Exception) {
@@ -266,9 +259,9 @@ class AnimalFormViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 objectsRepository.deleteObject(objectId)
-                if (selectedObject == objectId) {
+                if (_uiState.value.selectedObject == objectId) {
                     withContext(Dispatchers.Main) {
-                        selectedObject = null
+                        _uiState.update { it.copy(selectedObject = null) }
                     }
                 }
             } catch (e: Exception) {
@@ -303,7 +296,7 @@ class AnimalFormViewModel(
                 val lastId = speciesRepository.getAllSpecies().first()
                     .maxByOrNull { it.species_id }?.species_id
                 withContext(Dispatchers.Main) {
-                    selectedSpecies = lastId
+                    _uiState.update { it.copy(selectedSpecies = lastId) }
                     clearSpeciesFields()
                 }
             } catch (e: Exception) {

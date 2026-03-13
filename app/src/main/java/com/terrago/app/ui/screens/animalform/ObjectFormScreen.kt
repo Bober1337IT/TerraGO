@@ -60,13 +60,7 @@ import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 fun ObjectFormScreen(
     viewModel: AnimalFormViewModel, onBack: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var locationName by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var length by remember { mutableStateOf("") }
-    var width by remember { mutableStateOf("") }
-    var height by remember { mutableStateOf("") }
-
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var editingObjectId by remember { mutableStateOf<Long?>(null) }
 
     val objects by viewModel.availableObjects.collectAsStateWithLifecycle()
@@ -77,12 +71,7 @@ fun ObjectFormScreen(
 
     val clearFields = {
         editingObjectId = null
-        name = ""
-        width = ""
-        length = ""
-        height = ""
-        locationName = ""
-        description = ""
+        viewModel.clearObjectFields()
     }
 
     TerraGOTheme(dynamicColor = false) {
@@ -166,17 +155,21 @@ fun ObjectFormScreen(
                                     locationName = obj.location_name,
                                     isSelected = editingObjectId == obj.object_id,
                                     onClick = {
-                                        viewModel.selectedObject = obj.object_id
+                                        viewModel.updateState { it.copy(selectedObject = obj.object_id) }
                                         onBack()
                                     },
                                     onLongClick = {
                                         editingObjectId = obj.object_id
-                                        name = obj.name
-                                        width = obj.width?.toString() ?: ""
-                                        length = obj.length?.toString() ?: ""
-                                        height = obj.height?.toString() ?: ""
-                                        locationName = obj.location_name ?: ""
-                                        description = obj.description ?: ""
+                                        viewModel.updateState {
+                                            it.copy(
+                                                objectName = obj.name,
+                                                objectWidth = obj.width?.toString() ?: "",
+                                                objectLength = obj.length?.toString() ?: "",
+                                                objectHeight = obj.height?.toString() ?: "",
+                                                objectLocationName = obj.location_name ?: "",
+                                                objectDescription = obj.description ?: ""
+                                            )
+                                        }
                                     })
                             }
                         }
@@ -191,8 +184,14 @@ fun ObjectFormScreen(
 
                 // Name
                 OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
+                    value = uiState.objectName,
+                    onValueChange = { newValue ->
+                        viewModel.updateState {
+                            it.copy(
+                                objectName = newValue
+                            )
+                        }
+                    },
                     placeholder = { Text("Enter terrarium name...") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
@@ -212,8 +211,14 @@ fun ObjectFormScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Label("Width:")
                         OutlinedTextField(
-                            value = width,
-                            onValueChange = { width = it },
+                            value = uiState.objectWidth,
+                            onValueChange = { newValue ->
+                                viewModel.updateState {
+                                    it.copy(
+                                        objectWidth = newValue
+                                    )
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -227,8 +232,14 @@ fun ObjectFormScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Label("Length:")
                         OutlinedTextField(
-                            value = length,
-                            onValueChange = { length = it },
+                            value = uiState.objectLength,
+                            onValueChange = { newValue ->
+                                viewModel.updateState {
+                                    it.copy(
+                                        objectLength = newValue
+                                    )
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -242,8 +253,14 @@ fun ObjectFormScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Label("Height:")
                         OutlinedTextField(
-                            value = height,
-                            onValueChange = { height = it },
+                            value = uiState.objectHeight,
+                            onValueChange = { newValue ->
+                                viewModel.updateState {
+                                    it.copy(
+                                        objectHeight = newValue
+                                    )
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -260,8 +277,14 @@ fun ObjectFormScreen(
                 Column {
                     Label("Description (optional):")
                     OutlinedTextField(
-                        value = description,
-                        onValueChange = { description = it },
+                        value = uiState.objectDescription,
+                        onValueChange = { newValue ->
+                            viewModel.updateState {
+                                it.copy(
+                                    objectDescription = newValue
+                                )
+                            }
+                        },
                         placeholder = { Text("Enter terrarium description...") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
@@ -278,8 +301,14 @@ fun ObjectFormScreen(
                 Column {
                     Label("Location name:")
                     OutlinedTextField(
-                        value = locationName,
-                        onValueChange = { locationName = it },
+                        value = uiState.objectLocationName,
+                        onValueChange = { newValue ->
+                            viewModel.updateState {
+                                it.copy(
+                                    objectLocationName = newValue
+                                )
+                            }
+                        },
                         placeholder = { Text("Enter location name...") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
@@ -299,21 +328,21 @@ fun ObjectFormScreen(
                     onClick = {
                         if (editingObjectId == null) {
                             viewModel.insertObject(
-                                name = name,
-                                description = description.ifBlank { null },
-                                length = length.ifBlank { null }?.toLongOrNull(),
-                                width = width.ifBlank { null }?.toLongOrNull(),
-                                height = height.ifBlank { null }?.toLongOrNull(),
-                                location = locationName.ifBlank { null })
+                                name = uiState.objectName,
+                                description = uiState.objectDescription.ifBlank { null },
+                                length = uiState.objectLength.ifBlank { null }?.toLongOrNull(),
+                                width = uiState.objectWidth.ifBlank { null }?.toLongOrNull(),
+                                height = uiState.objectHeight.ifBlank { null }?.toLongOrNull(),
+                                location = uiState.objectLocationName.ifBlank { null })
                         } else {
                             viewModel.updateObject(
                                 objectId = editingObjectId!!,
-                                name = name,
-                                description = description.ifBlank { null },
-                                length = length.ifBlank { null }?.toLongOrNull(),
-                                width = width.ifBlank { null }?.toLongOrNull(),
-                                height = height.ifBlank { null }?.toLongOrNull(),
-                                location = locationName.ifBlank { null })
+                                name = uiState.objectName,
+                                description = uiState.objectDescription.ifBlank { null },
+                                length = uiState.objectLength.ifBlank { null }?.toLongOrNull(),
+                                width = uiState.objectWidth.ifBlank { null }?.toLongOrNull(),
+                                height = uiState.objectHeight.ifBlank { null }?.toLongOrNull(),
+                                location = uiState.objectLocationName.ifBlank { null })
                         }
                         if (editingObjectId == null) {
                             onBack()
@@ -327,7 +356,7 @@ fun ObjectFormScreen(
                         .padding(bottom = 32.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(24.dp),
-                    enabled = name.isNotBlank()
+                    enabled = uiState.objectName.isNotBlank()
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
