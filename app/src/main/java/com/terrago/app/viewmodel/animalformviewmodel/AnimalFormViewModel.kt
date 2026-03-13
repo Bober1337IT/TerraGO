@@ -1,6 +1,7 @@
 package com.terrago.app.viewmodel.animalformviewmodel
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -31,7 +32,7 @@ class AnimalFormViewModel(
     var birthDate by mutableStateOf("")
     var gender by mutableStateOf("")
     var size by mutableStateOf("")
-    var sizeType by mutableStateOf(0L)
+    var sizeType by mutableLongStateOf(0L)
     var notes by mutableStateOf("")
     var photo by mutableStateOf<ByteArray?>(null)
 

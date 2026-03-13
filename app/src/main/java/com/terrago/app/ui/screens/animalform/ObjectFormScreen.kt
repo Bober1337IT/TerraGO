@@ -75,6 +75,16 @@ fun ObjectFormScreen(
         objects.sortedBy { it.name }
     }
 
+    val clearFields = {
+        editingObjectId = null
+        name = ""
+        width = ""
+        length = ""
+        height = ""
+        locationName = ""
+        description = ""
+    }
+
     TerraGOTheme(dynamicColor = false) {
         Scaffold(
             topBar = {
@@ -102,9 +112,7 @@ fun ObjectFormScreen(
                             Button(
                                 onClick = {
                                     viewModel.deleteObject(editingObjectId!!)
-                                    editingObjectId = null
-                                    name = ""; width = ""; length = ""; height = ""; locationName =
-                                    ""; description = ""
+                                    clearFields()
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                                 shape = RoundedCornerShape(24.dp),
@@ -310,9 +318,7 @@ fun ObjectFormScreen(
                         if (editingObjectId == null) {
                             onBack()
                         } else {
-                            editingObjectId = null
-                            name = ""; width = ""; length = ""; height = ""; locationName =
-                                ""; description = ""
+                            clearFields()
                         }
 
                     },

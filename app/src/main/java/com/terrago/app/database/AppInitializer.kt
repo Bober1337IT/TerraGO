@@ -4,6 +4,7 @@ import android.content.Context
 import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.Species
 import kotlinx.coroutines.flow.first
+import androidx.core.content.edit
 
 class AppInitializer(
     private val context: Context,
@@ -19,11 +20,11 @@ class AppInitializer(
                 prepopulateSpecies()
             }
             // Mark as initialized so it only runs once ever
-            prefs.edit().putBoolean("is_species_prepopulated", true).apply()
+            prefs.edit { putBoolean("is_species_prepopulated", true) }
         }
     }
 
-    private suspend fun prepopulateSpecies() {
+    private fun prepopulateSpecies() {
         val defaultSpecies = listOf(
             Species(
                 species_id = 0,

@@ -119,9 +119,8 @@ fun AnimalsScreen(
                     showSizeDialog= null
                 },
                 onConfirm = { newSize ->
-                    val animalIdToUpdate = showSizeDialog
-                    if (animalIdToUpdate != null) {
-                        viewModel.setSize(animalIdToUpdate, newSize)
+                    showSizeDialog?.also { id ->
+                        viewModel.setSize(id, newSize)
                     }
                     currentAction = ListAction.NAVIGATE
                     showSizeDialog = null
