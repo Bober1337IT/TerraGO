@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.first
 import androidx.core.content.edit
 
 class AppInitializer(
-    private val context: Context,
+    context: Context,
     private val speciesRepository: SpeciesRepository
 ) {
     private val prefs = context.getSharedPreferences("terra_go_prefs", Context.MODE_PRIVATE)
