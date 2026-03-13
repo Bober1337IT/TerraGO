@@ -25,7 +25,7 @@ class SpeciesRepository(private val db: TerraGoDatabase) {
             .map { it.firstOrNull() }
     }
 
-    suspend fun insertSpecies(
+    fun insertSpecies(
         nameLatin: String,
         nameCommon: String? = null,
         description: String? = null,

@@ -1,5 +1,7 @@
 package com.terrago.app
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -10,6 +12,7 @@ import com.terrago.app.navigation.AppNavHost
 import com.terrago.app.ui.theme.TerraGOTheme
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun App(database: TerraGoDatabase) {
     val context = LocalContext.current

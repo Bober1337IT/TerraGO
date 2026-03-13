@@ -11,10 +11,18 @@ import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.Objects
 import com.terrago.app.db.Species
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -24,16 +32,59 @@ class AnimalFormViewModel(
     private val speciesRepository: SpeciesRepository
 ) : ViewModel() {
 
-    // Form state
-    var name by mutableStateOf("")
-    var selectedObject by mutableStateOf<Long?>(null)
-    var selectedSpecies by mutableStateOf<Long?>(null)
-    var birthDate by mutableStateOf("")
-    var gender by mutableStateOf("")
-    var size by mutableStateOf("")
-    var sizeType by mutableStateOf(0L)
-    var notes by mutableStateOf("")
-    var photo by mutableStateOf<ByteArray?>(null)
+    // Internal mutable source that holds the current state of the entire form
+    private val _uiState = MutableStateFlow(AnimalFormUiState())
+    // Public read-only stream that the UI observes to refresh its components
+    val uiState: StateFlow<AnimalFormUiState> = _uiState.asStateFlow()
+
+    // A function that allows the UI to modify any part of the state
+    // It takes the current state, applies your changes via .copy() and pushes the new version to the UI
+    fun updateState(transform: (AnimalFormUiState) -> AnimalFormUiState) {
+        _uiState.update(transform)
+    }
+
+    // Data Sources - Load eagerly so they are ready before the screen finishes transitioning
+    val availableObjects: StateFlow<List<Objects>> = objectsRepository.getAllObjects().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly, // Start loading immediately in background
+        initialValue = emptyList()
+    )
+
+    val availableSpecies: StateFlow<List<Species>> = speciesRepository.getAllSpecies().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly, // Start loading immediately in background
+        initialValue = emptyList()
+    )
+
+    // Combines the full list from DB with the search query from UI state with a debounce delay
+    @OptIn(FlowPreview::class)
+    val filteredSpecies: StateFlow<List<Species>> = combine(
+        availableSpecies,
+        _uiState.map { it.speciesSearchQuery }.distinctUntilChanged()
+            // Use 0ms delay for empty query (initial state) so list is ready instantly, 
+            // but keep 400ms for active typing.
+            .debounce { query -> if (query.isEmpty()) 0L else 400L }
+    ) { allSpecies, query ->
+        val sorted = allSpecies.sortedBy { it.name_latin }
+
+        if (query.isEmpty()) {
+            sorted
+        } else {
+            // Check if the query exactly matches the currently selected species name
+            sorted.filter {
+                it.name_latin.contains(query, ignoreCase = true) || (it.name_common?.contains(query, ignoreCase = true) ?: false)
+            }
+        }
+    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly, // Start loading immediately in background
+            initialValue = emptyList()
+        )
+
+    fun onSpeciesSearchChange(query: String) {
+        updateState { it.copy(speciesSearchQuery = query) }
+    }
 
     // Hidden form state to preserve care dates during edit
     var lastFeeding by mutableStateOf<String?>(null)
@@ -44,59 +95,76 @@ class AnimalFormViewModel(
 
     fun loadAnimal(id: Long) {
         if (loadedAnimalId == id) return
+
         viewModelScope.launch(Dispatchers.IO) {
             val animal = animalsRepository.getAnimalById(id).first()
+
             animal?.let {
+                // Find species name from pre-loaded list or fallback to DB
+                val speciesName = availableSpecies.value.find { s -> s.species_id == it.species_id }?.name_latin ?: speciesRepository.getSpeciesById(it.species_id).first()?.name_latin ?: ""
+
+                _uiState.update { state ->
+                    state.copy(
+                        name = it.name ?: "",
+                        selectedObject = it.object_id,
+                        selectedSpecies = it.species_id,
+                        speciesSearchQuery = speciesName,
+                        birthDate = it.birth_date ?: "",
+                        gender = it.gender ?: "",
+                        size = it.size?.toString() ?: "",
+                        sizeType = it.size_type ?: 0L,
+                        notes = it.notes ?: "",
+                        photo = it.photo
+                    )
+                }
+
+                // Populate hidden fields
                 withContext(Dispatchers.Main) {
-                    name = it.name ?: ""
-                    selectedObject = it.object_id
-                    selectedSpecies = it.species_id
-                    birthDate = it.birth_date ?: ""
-                    gender = it.gender ?: ""
-                    size = it.size?.toString() ?: ""
-                    sizeType = it.size_type ?: 0
-                    notes = it.notes ?: ""
-                    photo = it.photo
-                    
-                    // Populate hidden fields
                     lastFeeding = it.last_feeding
                     lastSpray = it.last_spray
                     lastMolt = it.last_molt
-                    
-                    loadedAnimalId = id
                 }
+
+                loadedAnimalId = id
             }
         }
     }
 
-    // Function to clear the form after saving
     fun clearForm() {
-        name = ""
-        selectedObject = null
-        selectedSpecies = null
-        birthDate = ""
-        gender = ""
-        size = ""
-        sizeType = 0L
-        notes = ""
-        photo = null
+        _uiState.update { AnimalFormUiState() }
         lastFeeding = null
         lastSpray = null
         lastMolt = null
         loadedAnimalId = null
     }
 
-    val availableObjects: StateFlow<List<Objects>> = objectsRepository.getAllObjects().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+    fun clearSpeciesFields() {
+        _uiState.update { state ->
+            state.copy(
+                speciesLatinName = "",
+                speciesCommonName = "",
+                speciesDescription = "",
+                speciesTempMin = "",
+                speciesTempMax = "",
+                speciesHumMin = "",
+                speciesHumMax = "",
+                speciesLightCycle = ""
+            )
+        }
+    }
 
-    val availableSpecies: StateFlow<List<Species>> = speciesRepository.getAllSpecies().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+    fun clearObjectFields() {
+        _uiState.update { state ->
+            state.copy(
+                objectName = "",
+                objectLocationName = "",
+                objectDescription = "",
+                objectLength = "",
+                objectWidth = "",
+                objectHeight = ""
+            )
+        }
+    }
 
     fun getAnimalById(id: Long) = animalsRepository.getAnimalById(id)
 
@@ -168,35 +236,38 @@ class AnimalFormViewModel(
         }
     }
 
-    suspend fun insertObject(
+    fun insertObject(
         name: String,
         description: String?,
         length: Long?,
         width: Long?,
         height: Long?,
         location: String?
-    ) = withContext(Dispatchers.IO) {
-        try {
-            objectsRepository.insertObject(
-                name = name,
-                description = description,
-                length = length,
-                width = width,
-                height = height,
-                locationName = location
-            )
-            // Explicitly fetch latest to select it
-            val lastId = objectsRepository.getAllObjects().first()
-                .maxByOrNull { it.object_id }?.object_id
-            withContext(Dispatchers.Main) {
-                selectedObject = lastId
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                objectsRepository.insertObject(
+                    name = name,
+                    description = description,
+                    length = length,
+                    width = width,
+                    height = height,
+                    locationName = location
+                )
+                // Explicitly fetch latest to select it
+                val lastId = objectsRepository.getAllObjects().first()
+                    .maxByOrNull { it.object_id }?.object_id
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(selectedObject = lastId) }
+                    clearObjectFields()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 
-    suspend fun updateObject(
+    fun updateObject(
         objectId: Long,
         name: String,
         description: String?,
@@ -204,19 +275,21 @@ class AnimalFormViewModel(
         width: Long?,
         height: Long?,
         location: String?
-    ) = withContext(Dispatchers.IO) {
-        try {
-            objectsRepository.updateObject(
-                objectId = objectId,
-                name = name,
-                description = description,
-                length = length,
-                width = width,
-                height = height,
-                locationName = location
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                objectsRepository.updateObject(
+                    objectId = objectId,
+                    name = name,
+                    description = description,
+                    length = length,
+                    width = width,
+                    height = height,
+                    locationName = location
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -224,9 +297,9 @@ class AnimalFormViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 objectsRepository.deleteObject(objectId)
-                if (selectedObject == objectId) {
+                if (_uiState.value.selectedObject == objectId) {
                     withContext(Dispatchers.Main) {
-                        selectedObject = null
+                        _uiState.update { it.copy(selectedObject = null) }
                     }
                 }
             } catch (e: Exception) {
@@ -235,7 +308,7 @@ class AnimalFormViewModel(
         }
     }
 
-    suspend fun insertSpecies(
+    fun insertSpecies(
         latinName: String,
         commonName: String?,
         description: String?,
@@ -244,26 +317,29 @@ class AnimalFormViewModel(
         humidityMin: Double?,
         humidityMax: Double?,
         lightCycleH: Long?
-    ) = withContext(Dispatchers.IO) {
-        try {
-            speciesRepository.insertSpecies(
-                nameLatin = latinName,
-                nameCommon = commonName,
-                description = description,
-                temperatureMin = temperatureMin,
-                temperatureMax = temperatureMax,
-                humidityMin = humidityMin,
-                humidityMax = humidityMax,
-                lightCycleH = lightCycleH
-            )
-            // Explicitly fetch latest to select it
-            val lastId = speciesRepository.getAllSpecies().first()
-                .maxByOrNull { it.species_id }?.species_id
-            withContext(Dispatchers.Main) {
-                selectedSpecies = lastId
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                speciesRepository.insertSpecies(
+                    nameLatin = latinName,
+                    nameCommon = commonName,
+                    description = description,
+                    temperatureMin = temperatureMin,
+                    temperatureMax = temperatureMax,
+                    humidityMin = humidityMin,
+                    humidityMax = humidityMax,
+                    lightCycleH = lightCycleH
+                )
+                // Explicitly fetch latest to select it
+                val lastId = speciesRepository.getAllSpecies().first()
+                    .maxByOrNull { it.species_id }?.species_id
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(selectedSpecies = lastId, speciesSearchQuery = latinName) }
+                    clearSpeciesFields()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 }

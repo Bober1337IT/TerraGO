@@ -43,12 +43,12 @@ android {
 }
 
 dependencies {
-        implementation("androidx.compose.material3:material3")
-        implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     implementation(platform("androidx.compose:compose-bom:2024.02.01"))
     implementation("androidx.compose.material3:material3")
-        implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -78,6 +78,8 @@ dependencies {
     implementation(libs.coil.compose)
     // Planning notifications
     implementation(libs.work.runtime.ktx)
+    // Image Cropper
+    implementation(libs.android.image.cropper)
 }
 
 sqldelight{

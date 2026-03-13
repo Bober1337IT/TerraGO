@@ -1,7 +1,19 @@
 package com.terrago.app.ui.screens.animalform
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,60 +21,63 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.terrago.app.R
 import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
 
-    var latinName by remember { mutableStateOf("") }
-    var commonName by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var tempMin by remember { mutableStateOf("") }
-    var tempMax by remember { mutableStateOf("") }
-    var humMin by remember { mutableStateOf("") }
-    var humMax by remember { mutableStateOf("") }
-    var lightCycle by remember { mutableStateOf("") }
-
-    val scope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     TerraGOTheme(dynamicColor = false) {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo",
-                        modifier = Modifier.height(40.dp),
-                        tint = Color.Unspecified
-                    )
-                }, navigationIcon = {
-                    IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            modifier = Modifier
-                                .size(36.dp)
-                                .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                                .padding(4.dp)
+                            painter = painterResource(id = R.drawable.logo),
+                            contentDescription = "Logo",
+                            modifier = Modifier.height(40.dp),
+                            tint = Color.Unspecified
                         )
-                    }
-                }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                    }, navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                                    .padding(4.dp)
+                            )
+                        }
+                    }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
                 )
             }, containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
@@ -78,8 +93,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                 Column {
                     Label("Species name - latin:")
                     OutlinedTextField(
-                        value = latinName,
-                        onValueChange = { latinName = it },
+                        value = uiState.speciesLatinName,
+                        onValueChange ={ newValue ->
+                            viewModel.updateState { it.copy(speciesLatinName = newValue) }
+                        },
                         placeholder = { Text("Enter species name...") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
@@ -97,8 +114,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                 Column {
                     Label("Species name - common (optional):")
                     OutlinedTextField(
-                        value = commonName,
-                        onValueChange = { commonName = it },
+                        value = uiState.speciesCommonName,
+                        onValueChange ={ newValue ->
+                            viewModel.updateState { it.copy(speciesCommonName = newValue) }
+                        },
                         placeholder = { Text("Enter species name...") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
@@ -120,8 +139,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         OutlinedTextField(
-                            value = tempMin,
-                            onValueChange = { tempMin = it },
+                            value = uiState.speciesTempMin,
+                            onValueChange ={ newValue ->
+                                viewModel.updateState { it.copy(speciesTempMin = newValue) }
+                            },
                             placeholder = { Text("Enter minimum...") },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
@@ -134,8 +155,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                             )
                         )
                         OutlinedTextField(
-                            value = tempMax,
-                            onValueChange = { tempMax = it },
+                            value = uiState.speciesTempMax,
+                            onValueChange ={ newValue ->
+                                viewModel.updateState { it.copy(speciesTempMax = newValue) }
+                            },
                             placeholder = { Text("Enter maximum...") },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
@@ -158,8 +181,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         OutlinedTextField(
-                            value = humMin,
-                            onValueChange = { humMin = it },
+                            value = uiState.speciesHumMin,
+                            onValueChange ={ newValue ->
+                                viewModel.updateState { it.copy(speciesHumMin = newValue) }
+                            },
                             placeholder = { Text("Enter minimum...") },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
@@ -172,8 +197,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                             )
                         )
                         OutlinedTextField(
-                            value = humMax,
-                            onValueChange = { humMax = it },
+                            value = uiState.speciesHumMax,
+                            onValueChange ={ newValue ->
+                                viewModel.updateState { it.copy(speciesHumMax = newValue) }
+                            },
                             placeholder = { Text("Enter maximum...") },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
@@ -192,8 +219,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                 Column {
                     Label("Lighting hours:")
                     OutlinedTextField(
-                        value = lightCycle,
-                        onValueChange = { lightCycle = it },
+                        value = uiState.speciesLightCycle,
+                        onValueChange ={ newValue ->
+                            viewModel.updateState { it.copy(speciesLightCycle = newValue) }
+                        },
                         placeholder = { Text("Enter amount of lighting hours...") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
@@ -211,8 +240,10 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                 Column {
                     Label("Description (optional):")
                     OutlinedTextField(
-                        value = description,
-                        onValueChange = { description = it },
+                        value = uiState.speciesDescription,
+                        onValueChange ={ newValue ->
+                            viewModel.updateState { it.copy(speciesDescription = newValue) }
+                        },
                         placeholder = { Text("Enter description...") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
@@ -230,26 +261,25 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                 // Accept Button
                 Button(
                     onClick = {
-                        scope.launch {
-                            viewModel.insertSpecies(
-                                latinName = latinName,
-                                commonName = commonName.ifBlank { null },
-                                description = description.ifBlank { null },
-                                temperatureMin = tempMin.ifBlank { null }?.toDoubleOrNull(),
-                                temperatureMax = tempMax.ifBlank { null }?.toDoubleOrNull(),
-                                humidityMin = humMin.ifBlank { null }?.toDoubleOrNull(),
-                                humidityMax = humMax.ifBlank { null }?.toDoubleOrNull(),
-                                lightCycleH = lightCycle.ifBlank { null }?.toLongOrNull()
-                            )
-                            onBack()
-                        }
+                        viewModel.insertSpecies(
+                            latinName = uiState.speciesLatinName,
+                            commonName = uiState.speciesCommonName.ifBlank { null },
+                            description = uiState.speciesDescription.ifBlank { null },
+                            temperatureMin = uiState.speciesTempMin.ifBlank { null }?.toDoubleOrNull(),
+                            temperatureMax = uiState.speciesTempMax.ifBlank { null }?.toDoubleOrNull(),
+                            humidityMin = uiState.speciesHumMin.ifBlank { null }?.toDoubleOrNull(),
+                            humidityMax = uiState.speciesHumMax.ifBlank { null }?.toDoubleOrNull(),
+                            lightCycleH = uiState.speciesLightCycle.ifBlank { null }?.toLongOrNull()
+                        )
+                        onBack()
+
                     },
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(bottom = 32.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(24.dp),
-                    enabled = latinName.isNotBlank()
+                    enabled = uiState.speciesLatinName.isNotBlank()
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

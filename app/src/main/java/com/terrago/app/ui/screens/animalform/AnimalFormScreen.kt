@@ -1,12 +1,27 @@
 package com.terrago.app.ui.screens.animalform
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,8 +32,31 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,16 +65,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.terrago.app.R
 import com.terrago.app.navigation.Screen.AnimalFormRoutes
-import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.components.photo.PhotoFromByteArray
 import com.terrago.app.ui.components.photo.rememberPhotoPicker
+import com.terrago.app.ui.screens.animalform.components.DeleteConfirmationDialog
 import com.terrago.app.ui.screens.animalform.components.GenderButton
+import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
-import com.terrago.app.ui.screens.animalform.components.DeleteConfirmationDialog
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,45 +86,17 @@ fun AnimalFormScreen(
     navController: NavController,
     onBack: () -> Unit
 ) {
-    val objects by viewModel.availableObjects.collectAsState()
-    val speciesList by viewModel.availableSpecies.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val objects by viewModel.availableObjects.collectAsStateWithLifecycle()
+    // Collect the filtered flow from ViewModel
+    val filteredSpecies by viewModel.filteredSpecies.collectAsStateWithLifecycle()
 
-    val sortedSpecies = remember(speciesList) {
-        speciesList.sortedBy { it.name_latin }
-    }
-
-    var specExp by remember { mutableStateOf(false) }
+    var speciesExpanded by remember { mutableStateOf(false) }
     var sizeTypeExp by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // Search state for species
-    var speciesSearchQuery by remember {
-        mutableStateOf("")
-    }
-
-    // Sync search query with selected species initially or when loaded
-    LaunchedEffect(viewModel.selectedSpecies, sortedSpecies) {
-        val selected = sortedSpecies.find { it.species_id == viewModel.selectedSpecies }
-        if (selected != null && speciesSearchQuery != selected.name_latin) {
-            speciesSearchQuery = selected.name_latin
-        }
-    }
-
-    val filteredSpecies = remember(speciesSearchQuery, sortedSpecies) {
-        if (speciesSearchQuery.isEmpty() || sortedSpecies.any { it.name_latin == speciesSearchQuery }) {
-            sortedSpecies
-        } else {
-            sortedSpecies.filter {
-                it.name_latin.contains(
-                    speciesSearchQuery,
-                    ignoreCase = true
-                ) || (it.name_common?.contains(speciesSearchQuery, ignoreCase = true) ?: false)
-            }
-        }
-    }
-
     val photoPicker = rememberPhotoPicker { bytes ->
-        viewModel.photo = bytes
+        viewModel.updateState { it.copy(photo = bytes) }
     }
 
     BackHandler {
@@ -104,51 +115,51 @@ fun AnimalFormScreen(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo",
-                        modifier = Modifier.height(40.dp),
-                        tint = Color.Unspecified
-                    )
-                }, navigationIcon = {
-                    IconButton(onClick = {
-                        viewModel.clearForm()
-                        onBack()
-                    }) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            modifier = Modifier
-                                .size(36.dp)
-                                .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                                .padding(4.dp)
+                            painter = painterResource(id = R.drawable.logo),
+                            contentDescription = "Logo",
+                            modifier = Modifier.height(40.dp),
+                            tint = Color.Unspecified
                         )
-                    }
-                }, actions = {
-                    if (animalId != null) {
-                        Button(
-                            onClick = { showDeleteDialog = true },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                            shape = RoundedCornerShape(24.dp),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                        ) {
-                            Text(
-                                "DELETE",
-                                color = MaterialTheme.colorScheme.onError,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp
-                            )
-                            Spacer(Modifier.width(4.dp))
+                    }, navigationIcon = {
+                        IconButton(onClick = {
+                            viewModel.clearForm()
+                            onBack()
+                        }) {
                             Icon(
-                                Icons.Default.Close,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                                    .padding(4.dp)
                             )
                         }
-                    }
-                }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                    }, actions = {
+                        if (animalId != null) {
+                            Button(
+                                onClick = { showDeleteDialog = true },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                                shape = RoundedCornerShape(24.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                            ) {
+                                Text(
+                                    "DELETE",
+                                    color = MaterialTheme.colorScheme.onError,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
                 )
             }, containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
@@ -164,15 +175,15 @@ fun AnimalFormScreen(
                 Label("Animal species:")
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ExposedDropdownMenuBox(
-                        expanded = specExp,
-                        onExpandedChange = { specExp = it },
+                        expanded = speciesExpanded,
+                        onExpandedChange = { speciesExpanded = it },
                         modifier = Modifier.weight(1f)
                     ) {
                         OutlinedTextField(
-                            value = speciesSearchQuery,
+                            value = uiState.speciesSearchQuery,
                             onValueChange = {
-                                speciesSearchQuery = it
-                                specExp = true
+                                viewModel.onSpeciesSearchChange(it)
+                                speciesExpanded = true
                             },
                             modifier = Modifier
                                 .menuAnchor()
@@ -185,26 +196,28 @@ fun AnimalFormScreen(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                                 unfocusedBorderColor = MaterialTheme.colorScheme.outline
                             ),
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = specExp) })
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = speciesExpanded) })
 
                         if (filteredSpecies.isNotEmpty()) {
                             ExposedDropdownMenu(
-                                expanded = specExp, onDismissRequest = { specExp = false }) {
-                                filteredSpecies.forEach { spec ->
+                                expanded = speciesExpanded, onDismissRequest = { speciesExpanded = false }) {
+                                filteredSpecies.forEach { species ->
                                     DropdownMenuItem(text = {
                                         Column {
-                                            Text(spec.name_latin, fontWeight = FontWeight.Bold)
-                                            if (!spec.name_common.isNullOrBlank()) {
+                                            Text(species.name_latin, fontWeight = FontWeight.Bold)
+                                            if (!species.name_common.isNullOrBlank()) {
                                                 Text(
-                                                    spec.name_common,
+                                                    species.name_common,
                                                     style = MaterialTheme.typography.bodySmall
                                                 )
                                             }
                                         }
                                     }, onClick = {
-                                        viewModel.selectedSpecies = spec.species_id
-                                        speciesSearchQuery = spec.name_latin
-                                        specExp = false
+                                        viewModel.updateState { it.copy(
+                                            selectedSpecies = species.species_id,
+                                            speciesSearchQuery = species.name_latin
+                                        ) }
+                                        speciesExpanded = false
                                     })
                                 }
                             }
@@ -239,7 +252,7 @@ fun AnimalFormScreen(
                     )
                 ) {
                     Text(
-                        text = objects.find { it.object_id == viewModel.selectedObject }?.name
+                        text = objects.find { it.object_id == uiState.selectedObject }?.name
                             ?: "Select habitat", fontWeight = FontWeight.Bold
                     )
                 }
@@ -247,8 +260,8 @@ fun AnimalFormScreen(
                 // Name
                 Label("Animal name (optional):")
                 OutlinedTextField(
-                    value = viewModel.name,
-                    onValueChange = { viewModel.name = it },
+                    value = uiState.name,
+                    onValueChange = { newValue -> viewModel.updateState { it.copy(name = newValue) } },
                     placeholder = { Text("Enter animal name...") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
@@ -266,7 +279,7 @@ fun AnimalFormScreen(
                 var showDatePicker by remember { mutableStateOf(false) }
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = viewModel.birthDate,
+                        value = uiState.birthDate,
                         onValueChange = {},
                         readOnly = true,
                         placeholder = { Text("Enter birth date (DD-MM-YYYY)...") },
@@ -284,9 +297,10 @@ fun AnimalFormScreen(
                                 contentDescription = null,
                                 modifier = Modifier.clickable { showDatePicker = true })
                         })
-                    Box(modifier = Modifier
-                        .matchParentSize()
-                        .clickable { showDatePicker = true })
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showDatePicker = true })
                 }
                 if (showDatePicker) {
                     DatePickerDialog(
@@ -296,9 +310,10 @@ fun AnimalFormScreen(
                                 datePickerState.selectedDateMillis?.let { millis ->
                                     val date = java.time.Instant.ofEpochMilli(millis)
                                         .atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-                                    viewModel.birthDate = "%02d-%02d-%04d".format(
+                                    val formattedDate = "%02d-%02d-%04d".format(
                                         date.dayOfMonth, date.monthValue, date.year
                                     )
+                                    viewModel.updateState { it.copy(birthDate = formattedDate) }
                                 }
                                 showDatePicker = false
                             }) { Text("OK") }
@@ -316,12 +331,14 @@ fun AnimalFormScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    GenderButton("Male", viewModel.gender == "Male") { viewModel.gender = "Male" }
-                    GenderButton("Female", viewModel.gender == "Female") {
-                        viewModel.gender = "Female"
+                    GenderButton("Male", uiState.gender == "Male") {
+                        viewModel.updateState { it.copy(gender = "Male") }
                     }
-                    GenderButton("Not Sexed", viewModel.gender == "Not Sexed") {
-                        viewModel.gender = "Not Sexed"
+                    GenderButton("Female", uiState.gender == "Female") {
+                        viewModel.updateState { it.copy(gender = "Female") }
+                    }
+                    GenderButton("Not Sexed", uiState.gender == "Not Sexed") {
+                        viewModel.updateState { it.copy(gender = "Not Sexed") }
                     }
                 }
 
@@ -337,7 +354,7 @@ fun AnimalFormScreen(
                         modifier = Modifier.width(100.dp)
                     ) {
                         OutlinedTextField(
-                            value = when (viewModel.sizeType) {
+                            value = when (uiState.sizeType) {
                                 0L -> "cm"; 1L -> "L"; else -> "other"
                             },
                             onValueChange = {},
@@ -355,19 +372,28 @@ fun AnimalFormScreen(
                             expanded = sizeTypeExp, onDismissRequest = { sizeTypeExp = false }) {
                             DropdownMenuItem(
                                 text = { Text("cm") },
-                                onClick = { viewModel.sizeType = 0; sizeTypeExp = false })
+                                onClick = {
+                                    viewModel.updateState { it.copy(sizeType = 0L) }
+                                    sizeTypeExp = false
+                                })
                             DropdownMenuItem(
                                 text = { Text("L") },
-                                onClick = { viewModel.sizeType = 1; sizeTypeExp = false })
+                                onClick = {
+                                    viewModel.updateState { it.copy(sizeType = 1L) }
+                                    sizeTypeExp = false
+                                })
                             DropdownMenuItem(
                                 text = { Text("other") },
-                                onClick = { viewModel.sizeType = 2; sizeTypeExp = false })
+                                onClick = {
+                                    viewModel.updateState { it.copy(sizeType = 2L) }
+                                    sizeTypeExp = false
+                                })
                         }
                     }
                     Spacer(Modifier.width(8.dp))
                     OutlinedTextField(
-                        value = viewModel.size,
-                        onValueChange = { viewModel.size = it },
+                        value = uiState.size,
+                        onValueChange = { newValue -> viewModel.updateState { it.copy(size = newValue) } },
                         placeholder = { Text("Enter animal size...") },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp),
@@ -415,9 +441,9 @@ fun AnimalFormScreen(
                         Text("Camera", fontWeight = FontWeight.Bold)
                     }
                 }
-                if (viewModel.photo != null) {
+                if (uiState.photo != null) {
                     PhotoFromByteArray(
-                        bytes = viewModel.photo,
+                        bytes = uiState.photo,
                         modifier = Modifier
                             .size(120.dp)
                             .clip(RoundedCornerShape(8.dp))
@@ -427,8 +453,8 @@ fun AnimalFormScreen(
                 // Notes
                 Label("Additional notes (optional):")
                 OutlinedTextField(
-                    value = viewModel.notes,
-                    onValueChange = { viewModel.notes = it },
+                    value = uiState.notes,
+                    onValueChange = { newValue -> viewModel.updateState { it.copy(notes = newValue) } },
                     placeholder = { Text("Enter notes...") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -447,23 +473,23 @@ fun AnimalFormScreen(
                 // Accept Button
                 Button(
                     onClick = {
-                        val objId = viewModel.selectedObject
-                        val specId = viewModel.selectedSpecies
+                        val objId = uiState.selectedObject
+                        val specId = uiState.selectedSpecies
                         if (objId != null && specId != null) {
                             viewModel.insertAnimal(
                                 animalId = animalId,
                                 objectId = objId,
                                 speciesId = specId,
-                                name = viewModel.name.ifBlank { null },
-                                gender = viewModel.gender.ifBlank { null },
-                                birthDate = viewModel.birthDate.ifBlank { null },
+                                name = uiState.name.ifBlank { null },
+                                gender = uiState.gender.ifBlank { null },
+                                birthDate = uiState.birthDate.ifBlank { null },
                                 lastFeeding = viewModel.lastFeeding,
                                 lastSpray = viewModel.lastSpray,
                                 lastMolt = viewModel.lastMolt,
-                                size = viewModel.size.toLongOrNull(),
-                                sizeType = viewModel.sizeType,
-                                notes = viewModel.notes.ifBlank { null },
-                                photo = viewModel.photo
+                                size = uiState.size.toLongOrNull(),
+                                sizeType = uiState.sizeType,
+                                notes = uiState.notes.ifBlank { null },
+                                photo = uiState.photo
                             )
                             viewModel.clearForm()
                             onBack()
@@ -474,7 +500,7 @@ fun AnimalFormScreen(
                         .padding(bottom = 32.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(24.dp),
-                    enabled = viewModel.selectedObject != null && viewModel.selectedSpecies != null
+                    enabled = uiState.selectedObject != null && uiState.selectedSpecies != null
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -504,7 +530,6 @@ fun AnimalFormScreen(
             DeleteConfirmationDialog(onDismiss = { showDeleteDialog = false }, onConfirm = {
                 viewModel.deleteAnimal(animalId)
                 showDeleteDialog = false
-                onBack()
                 onBack()
             })
         }

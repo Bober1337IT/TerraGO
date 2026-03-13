@@ -25,7 +25,7 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
             .map { it.firstOrNull() }
     }
 
-    suspend fun insertObject(
+    fun insertObject(
         name: String,
         description: String? = null,
         length: Long? = null,
@@ -43,7 +43,7 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
         )
     }
 
-    suspend fun updateObject(
+    fun updateObject(
         objectId: Long,
         name: String,
         description: String? = null,
@@ -63,7 +63,7 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
         )
     }
 
-    suspend fun deleteObject(objectId: Long) {
+    fun deleteObject(objectId: Long) {
         db.objectsQueries.deleteObject(objectId)
     }
 

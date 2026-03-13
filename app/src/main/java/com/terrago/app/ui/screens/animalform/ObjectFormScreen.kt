@@ -1,7 +1,21 @@
 package com.terrago.app.ui.screens.animalform
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,8 +24,23 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,33 +48,30 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.terrago.app.R
 import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.screens.animalform.components.TerrariumCard
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ObjectFormScreen(
     viewModel: AnimalFormViewModel, onBack: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var locationName by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var length by remember { mutableStateOf("") }
-    var width by remember { mutableStateOf("") }
-    var height by remember { mutableStateOf("") }
-
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var editingObjectId by remember { mutableStateOf<Long?>(null) }
 
-    val objects by viewModel.availableObjects.collectAsState()
-    val scope = rememberCoroutineScope()
+    val objects by viewModel.availableObjects.collectAsStateWithLifecycle()
 
     val sortedObjects = remember(objects) {
         objects.sortedBy { it.name }
+    }
+
+    val clearFields = {
+        editingObjectId = null
+        viewModel.clearObjectFields()
     }
 
     TerraGOTheme(dynamicColor = false) {
@@ -53,53 +79,51 @@ fun ObjectFormScreen(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo",
-                        modifier = Modifier.height(40.dp),
-                        tint = Color.Unspecified
-                    )
-                }, navigationIcon = {
-                    IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            modifier = Modifier
-                                .size(36.dp)
-                                .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                                .padding(4.dp)
+                            painter = painterResource(id = R.drawable.logo),
+                            contentDescription = "Logo",
+                            modifier = Modifier.height(40.dp),
+                            tint = Color.Unspecified
                         )
-                    }
-                }, actions = {
-                    if (editingObjectId != null) {
-                        Button(
-                            onClick = {
-                                viewModel.deleteObject(editingObjectId!!)
-                                editingObjectId = null
-                                name = ""; width = ""; length = ""; height = ""; locationName =
-                                ""; description = ""
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                            shape = RoundedCornerShape(24.dp),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                        ) {
-                            Text(
-                                "DELETE",
-                                color = MaterialTheme.colorScheme.onError,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp
-                            )
-                            Spacer(Modifier.width(4.dp))
+                    }, navigationIcon = {
+                        IconButton(onClick = onBack) {
                             Icon(
-                                Icons.Default.Close,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                                    .padding(4.dp)
                             )
                         }
-                    }
-                }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                    }, actions = {
+                        if (editingObjectId != null) {
+                            Button(
+                                onClick = {
+                                    viewModel.deleteObject(editingObjectId!!)
+                                    clearFields()
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                                shape = RoundedCornerShape(24.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                            ) {
+                                Text(
+                                    "DELETE",
+                                    color = MaterialTheme.colorScheme.onError,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
                 )
             }, containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
@@ -131,17 +155,21 @@ fun ObjectFormScreen(
                                     locationName = obj.location_name,
                                     isSelected = editingObjectId == obj.object_id,
                                     onClick = {
-                                        viewModel.selectedObject = obj.object_id
+                                        viewModel.updateState { it.copy(selectedObject = obj.object_id) }
                                         onBack()
                                     },
                                     onLongClick = {
                                         editingObjectId = obj.object_id
-                                        name = obj.name
-                                        width = obj.width?.toString() ?: ""
-                                        length = obj.length?.toString() ?: ""
-                                        height = obj.height?.toString() ?: ""
-                                        locationName = obj.location_name ?: ""
-                                        description = obj.description ?: ""
+                                        viewModel.updateState {
+                                            it.copy(
+                                                objectName = obj.name,
+                                                objectWidth = obj.width?.toString() ?: "",
+                                                objectLength = obj.length?.toString() ?: "",
+                                                objectHeight = obj.height?.toString() ?: "",
+                                                objectLocationName = obj.location_name ?: "",
+                                                objectDescription = obj.description ?: ""
+                                            )
+                                        }
                                     })
                             }
                         }
@@ -156,8 +184,14 @@ fun ObjectFormScreen(
 
                 // Name
                 OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
+                    value = uiState.objectName,
+                    onValueChange = { newValue ->
+                        viewModel.updateState {
+                            it.copy(
+                                objectName = newValue
+                            )
+                        }
+                    },
                     placeholder = { Text("Enter terrarium name...") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
@@ -177,8 +211,14 @@ fun ObjectFormScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Label("Width:")
                         OutlinedTextField(
-                            value = width,
-                            onValueChange = { width = it },
+                            value = uiState.objectWidth,
+                            onValueChange = { newValue ->
+                                viewModel.updateState {
+                                    it.copy(
+                                        objectWidth = newValue
+                                    )
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -192,8 +232,14 @@ fun ObjectFormScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Label("Length:")
                         OutlinedTextField(
-                            value = length,
-                            onValueChange = { length = it },
+                            value = uiState.objectLength,
+                            onValueChange = { newValue ->
+                                viewModel.updateState {
+                                    it.copy(
+                                        objectLength = newValue
+                                    )
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -207,8 +253,14 @@ fun ObjectFormScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Label("Height:")
                         OutlinedTextField(
-                            value = height,
-                            onValueChange = { height = it },
+                            value = uiState.objectHeight,
+                            onValueChange = { newValue ->
+                                viewModel.updateState {
+                                    it.copy(
+                                        objectHeight = newValue
+                                    )
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -225,8 +277,14 @@ fun ObjectFormScreen(
                 Column {
                     Label("Description (optional):")
                     OutlinedTextField(
-                        value = description,
-                        onValueChange = { description = it },
+                        value = uiState.objectDescription,
+                        onValueChange = { newValue ->
+                            viewModel.updateState {
+                                it.copy(
+                                    objectDescription = newValue
+                                )
+                            }
+                        },
                         placeholder = { Text("Enter terrarium description...") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
@@ -243,8 +301,14 @@ fun ObjectFormScreen(
                 Column {
                     Label("Location name:")
                     OutlinedTextField(
-                        value = locationName,
-                        onValueChange = { locationName = it },
+                        value = uiState.objectLocationName,
+                        onValueChange = { newValue ->
+                            viewModel.updateState {
+                                it.copy(
+                                    objectLocationName = newValue
+                                )
+                            }
+                        },
                         placeholder = { Text("Enter location name...") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
@@ -262,40 +326,37 @@ fun ObjectFormScreen(
                 // Accept Button
                 Button(
                     onClick = {
-                        scope.launch {
-                            if (editingObjectId == null) {
-                                viewModel.insertObject(
-                                    name = name,
-                                    description = description.ifBlank { null },
-                                    length = length.ifBlank { null }?.toLongOrNull(),
-                                    width = width.ifBlank { null }?.toLongOrNull(),
-                                    height = height.ifBlank { null }?.toLongOrNull(),
-                                    location = locationName.ifBlank { null })
-                            } else {
-                                viewModel.updateObject(
-                                    objectId = editingObjectId!!,
-                                    name = name,
-                                    description = description.ifBlank { null },
-                                    length = length.ifBlank { null }?.toLongOrNull(),
-                                    width = width.ifBlank { null }?.toLongOrNull(),
-                                    height = height.ifBlank { null }?.toLongOrNull(),
-                                    location = locationName.ifBlank { null })
-                            }
-                            if (editingObjectId == null) {
-                                onBack()
-                            } else {
-                                editingObjectId = null
-                                name = ""; width = ""; length = ""; height = ""; locationName =
-                                    ""; description = ""
-                            }
+                        if (editingObjectId == null) {
+                            viewModel.insertObject(
+                                name = uiState.objectName,
+                                description = uiState.objectDescription.ifBlank { null },
+                                length = uiState.objectLength.ifBlank { null }?.toLongOrNull(),
+                                width = uiState.objectWidth.ifBlank { null }?.toLongOrNull(),
+                                height = uiState.objectHeight.ifBlank { null }?.toLongOrNull(),
+                                location = uiState.objectLocationName.ifBlank { null })
+                        } else {
+                            viewModel.updateObject(
+                                objectId = editingObjectId!!,
+                                name = uiState.objectName,
+                                description = uiState.objectDescription.ifBlank { null },
+                                length = uiState.objectLength.ifBlank { null }?.toLongOrNull(),
+                                width = uiState.objectWidth.ifBlank { null }?.toLongOrNull(),
+                                height = uiState.objectHeight.ifBlank { null }?.toLongOrNull(),
+                                location = uiState.objectLocationName.ifBlank { null })
                         }
+                        if (editingObjectId == null) {
+                            onBack()
+                        } else {
+                            clearFields()
+                        }
+
                     },
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(bottom = 32.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(24.dp),
-                    enabled = name.isNotBlank()
+                    enabled = uiState.objectName.isNotBlank()
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
