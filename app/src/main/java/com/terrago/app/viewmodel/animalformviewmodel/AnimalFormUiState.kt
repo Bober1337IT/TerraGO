@@ -1,5 +1,7 @@
 package com.terrago.app.viewmodel.animalformviewmodel
 
+import com.terrago.app.db.Species
+
 data class AnimalFormUiState(
 
     // Animal fields
@@ -22,6 +24,10 @@ data class AnimalFormUiState(
     val speciesHumMin: String = "",
     val speciesHumMax: String = "",
     val speciesLightCycle: String = "",
+
+    // Selection state
+    val speciesSearchQuery: String = "",
+    val filteredSpecies: List<Species> = emptyList(),
 
     // Object fields
     val objectName: String = "",

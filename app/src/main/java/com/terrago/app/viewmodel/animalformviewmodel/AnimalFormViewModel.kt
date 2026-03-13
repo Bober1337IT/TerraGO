@@ -11,11 +11,16 @@ import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.Objects
 import com.terrago.app.db.Species
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -32,11 +37,53 @@ class AnimalFormViewModel(
     // Public read-only stream that the UI observes to refresh its components
     val uiState: StateFlow<AnimalFormUiState> = _uiState.asStateFlow()
 
-
     // A function that allows the UI to modify any part of the state
     // It takes the current state, applies your changes via .copy() and pushes the new version to the UI
     fun updateState(transform: (AnimalFormUiState) -> AnimalFormUiState) {
         _uiState.update(transform)
+    }
+
+    // Data Sources - Load eagerly so they are ready before the screen finishes transitioning
+    val availableObjects: StateFlow<List<Objects>> = objectsRepository.getAllObjects().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly, // Start loading immediately in background
+        initialValue = emptyList()
+    )
+
+    val availableSpecies: StateFlow<List<Species>> = speciesRepository.getAllSpecies().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly, // Start loading immediately in background
+        initialValue = emptyList()
+    )
+
+    // Combines the full list from DB with the search query from UI state with a debounce delay
+    @OptIn(FlowPreview::class)
+    val filteredSpecies: StateFlow<List<Species>> = combine(
+        availableSpecies,
+        _uiState.map { it.speciesSearchQuery }.distinctUntilChanged()
+            // Use 0ms delay for empty query (initial state) so list is ready instantly, 
+            // but keep 400ms for active typing.
+            .debounce { query -> if (query.isEmpty()) 0L else 400L }
+    ) { allSpecies, query ->
+        val sorted = allSpecies.sortedBy { it.name_latin }
+
+        if (query.isEmpty()) {
+            sorted
+        } else {
+            // Check if the query exactly matches the currently selected species name
+            sorted.filter {
+                it.name_latin.contains(query, ignoreCase = true) || (it.name_common?.contains(query, ignoreCase = true) ?: false)
+            }
+        }
+    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly, // Start loading immediately in background
+            initialValue = emptyList()
+        )
+
+    fun onSpeciesSearchChange(query: String) {
+        updateState { it.copy(speciesSearchQuery = query) }
     }
 
     // Hidden form state to preserve care dates during edit
@@ -53,11 +100,15 @@ class AnimalFormViewModel(
             val animal = animalsRepository.getAnimalById(id).first()
 
             animal?.let {
+                // Find species name from pre-loaded list or fallback to DB
+                val speciesName = availableSpecies.value.find { s -> s.species_id == it.species_id }?.name_latin ?: speciesRepository.getSpeciesById(it.species_id).first()?.name_latin ?: ""
+
                 _uiState.update { state ->
                     state.copy(
                         name = it.name ?: "",
                         selectedObject = it.object_id,
                         selectedSpecies = it.species_id,
+                        speciesSearchQuery = speciesName,
                         birthDate = it.birth_date ?: "",
                         gender = it.gender ?: "",
                         size = it.size?.toString() ?: "",
@@ -79,7 +130,6 @@ class AnimalFormViewModel(
         }
     }
 
-    // Function to clear the form after saving
     fun clearForm() {
         _uiState.update { AnimalFormUiState() }
         lastFeeding = null
@@ -115,18 +165,6 @@ class AnimalFormViewModel(
             )
         }
     }
-
-    val availableObjects: StateFlow<List<Objects>> = objectsRepository.getAllObjects().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
-
-    val availableSpecies: StateFlow<List<Species>> = speciesRepository.getAllSpecies().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
 
     fun getAnimalById(id: Long) = animalsRepository.getAnimalById(id)
 
@@ -296,7 +334,7 @@ class AnimalFormViewModel(
                 val lastId = speciesRepository.getAllSpecies().first()
                     .maxByOrNull { it.species_id }?.species_id
                 withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(selectedSpecies = lastId) }
+                    _uiState.update { it.copy(selectedSpecies = lastId, speciesSearchQuery = latinName) }
                     clearSpeciesFields()
                 }
             } catch (e: Exception) {

@@ -88,41 +88,12 @@ fun AnimalFormScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val objects by viewModel.availableObjects.collectAsStateWithLifecycle()
-    val species by viewModel.availableSpecies.collectAsStateWithLifecycle()
+    // Collect the filtered flow from ViewModel
+    val filteredSpecies by viewModel.filteredSpecies.collectAsStateWithLifecycle()
 
-    val sortedSpecies = remember(species) {
-        species.sortedBy { it.name_latin }
-    }
-
-    var specExp by remember { mutableStateOf(false) }
+    var speciesExpanded by remember { mutableStateOf(false) }
     var sizeTypeExp by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-
-    // Search state for species
-    var speciesSearchQuery by remember {
-        mutableStateOf("")
-    }
-
-    // Sync search query with selected species initially or when loaded
-    LaunchedEffect(uiState.selectedSpecies, sortedSpecies) {
-        val selected = sortedSpecies.find { it.species_id == uiState.selectedSpecies }
-        if (selected != null && speciesSearchQuery != selected.name_latin) {
-            speciesSearchQuery = selected.name_latin
-        }
-    }
-
-    val filteredSpecies = remember(speciesSearchQuery, sortedSpecies) {
-        if (speciesSearchQuery.isEmpty() || sortedSpecies.any { it.name_latin == speciesSearchQuery }) {
-            sortedSpecies
-        } else {
-            sortedSpecies.filter {
-                it.name_latin.contains(
-                    speciesSearchQuery,
-                    ignoreCase = true
-                ) || (it.name_common?.contains(speciesSearchQuery, ignoreCase = true) ?: false)
-            }
-        }
-    }
 
     val photoPicker = rememberPhotoPicker { bytes ->
         viewModel.updateState { it.copy(photo = bytes) }
@@ -204,15 +175,15 @@ fun AnimalFormScreen(
                 Label("Animal species:")
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ExposedDropdownMenuBox(
-                        expanded = specExp,
-                        onExpandedChange = { specExp = it },
+                        expanded = speciesExpanded,
+                        onExpandedChange = { speciesExpanded = it },
                         modifier = Modifier.weight(1f)
                     ) {
                         OutlinedTextField(
-                            value = speciesSearchQuery,
+                            value = uiState.speciesSearchQuery,
                             onValueChange = {
-                                speciesSearchQuery = it
-                                specExp = true
+                                viewModel.onSpeciesSearchChange(it)
+                                speciesExpanded = true
                             },
                             modifier = Modifier
                                 .menuAnchor()
@@ -225,26 +196,28 @@ fun AnimalFormScreen(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                                 unfocusedBorderColor = MaterialTheme.colorScheme.outline
                             ),
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = specExp) })
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = speciesExpanded) })
 
                         if (filteredSpecies.isNotEmpty()) {
                             ExposedDropdownMenu(
-                                expanded = specExp, onDismissRequest = { specExp = false }) {
-                                filteredSpecies.forEach { spec ->
+                                expanded = speciesExpanded, onDismissRequest = { speciesExpanded = false }) {
+                                filteredSpecies.forEach { species ->
                                     DropdownMenuItem(text = {
                                         Column {
-                                            Text(spec.name_latin, fontWeight = FontWeight.Bold)
-                                            if (!spec.name_common.isNullOrBlank()) {
+                                            Text(species.name_latin, fontWeight = FontWeight.Bold)
+                                            if (!species.name_common.isNullOrBlank()) {
                                                 Text(
-                                                    spec.name_common,
+                                                    species.name_common,
                                                     style = MaterialTheme.typography.bodySmall
                                                 )
                                             }
                                         }
                                     }, onClick = {
-                                        viewModel.updateState { it.copy(selectedSpecies = spec.species_id) }
-                                        speciesSearchQuery = spec.name_latin
-                                        specExp = false
+                                        viewModel.updateState { it.copy(
+                                            selectedSpecies = species.species_id,
+                                            speciesSearchQuery = species.name_latin
+                                        ) }
+                                        speciesExpanded = false
                                     })
                                 }
                             }
