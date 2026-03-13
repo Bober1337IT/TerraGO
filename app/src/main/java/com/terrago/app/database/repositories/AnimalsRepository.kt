@@ -74,7 +74,7 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
             }
     }
 
-    suspend fun insertAnimal(
+    fun insertAnimal(
         objectId: Long,
         speciesId: Long,
         name: String? = null,
@@ -104,7 +104,7 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
         )
     }
 
-    suspend fun updateAnimal(
+    fun updateAnimal(
         animalId: Long,
         objectId: Long,
         speciesId: Long,
@@ -136,23 +136,23 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
         )
     }
 
-    suspend fun setLastFeeding(animalId: Long) {
+    fun setLastFeeding(animalId: Long) {
         db.animalsQueries.setLastFeeding(animalId)
     }
 
-    suspend fun setLastSpray(animalId: Long) {
+    fun setLastSpray(animalId: Long) {
         db.animalsQueries.setLastSpray(animalId)
     }
 
-    suspend fun setLastMolt(animalId: Long) {
+    fun setLastMolt(animalId: Long) {
         db.animalsQueries.setLastMolt(animalId)
     }
 
-    suspend fun setSize(animalId: Long, size: Long) {
+    fun setSize(animalId: Long, size: Long) {
         db.animalsQueries.setSize(size, animalId)
     }
 
-    suspend fun deleteAnimal(animalId: Long) {
+    fun deleteAnimal(animalId: Long) {
         db.animalsQueries.deleteAnimal(animalId)
     }
 

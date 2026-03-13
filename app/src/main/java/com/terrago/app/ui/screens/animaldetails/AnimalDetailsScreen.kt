@@ -2,7 +2,17 @@ package com.terrago.app.ui.screens.animaldetails
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,8 +20,22 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,17 +44,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.terrago.app.R
-import com.terrago.app.ui.theme.TerraGOTheme
-import com.terrago.app.ui.components.photo.PhotoFromByteArray
-import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
+import com.terrago.app.ui.components.UpdateSizeDialog
 import com.terrago.app.ui.components.enumclasses.PendingAction
+import com.terrago.app.ui.components.photo.PhotoFromByteArray
 import com.terrago.app.ui.screens.animaldetails.components.ActionConfirmationDialog
 import com.terrago.app.ui.screens.animaldetails.components.ActionItem
-import com.terrago.app.ui.components.UpdateSizeDialog
 import com.terrago.app.ui.screens.animaldetails.components.GenderIcon
 import com.terrago.app.ui.screens.animaldetails.components.ObjectExpandableInfo
 import com.terrago.app.ui.screens.animaldetails.components.SpeciesExpandableInfo
+import com.terrago.app.ui.theme.TerraGOTheme
+import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +65,8 @@ fun AnimalDetailsScreen(
     onBack: () -> Unit,
     onEditClick: (Long) -> Unit
 ) {
-    val animal by viewModel.getAnimalDetails(animalId).collectAsState(initial = null)
+    val animal by viewModel.getAnimalDetails(animalId)
+        .collectAsStateWithLifecycle(initialValue = null)
 
     var showSizeDialog by remember { mutableStateOf(false) }
     var pendingAction by remember { mutableStateOf(PendingAction.NONE) }

@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.terrago.app.ui.components.UpdateSizeDialog
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
@@ -23,7 +24,7 @@ fun AnimalsScreen(
     onAnimalClick: (Long) -> Unit,
     onAddAnimalClick: () -> Unit
 ) {
-    val animals by viewModel.animalsPreview.collectAsState()
+    val animals by viewModel.animalsPreview.collectAsStateWithLifecycle()
     var currentAction by remember { mutableStateOf(ListAction.NAVIGATE) }
     
     var showSizeDialog by remember { mutableStateOf<Long?>(null) }
@@ -114,13 +115,16 @@ fun AnimalsScreen(
             UpdateSizeDialog(
                 initialSize = newSizeText,
                 onDismiss = {
-                    showSizeDialog = null
                     currentAction = ListAction.NAVIGATE
+                    showSizeDialog= null
                 },
                 onConfirm = { newSize ->
-                    viewModel.setSize(showSizeDialog!!, newSize)
-                    showSizeDialog = null
+                    val animalIdToUpdate = showSizeDialog
+                    if (animalIdToUpdate != null) {
+                        viewModel.setSize(animalIdToUpdate, newSize)
+                    }
                     currentAction = ListAction.NAVIGATE
+                    showSizeDialog = null
                 }
             )
         }

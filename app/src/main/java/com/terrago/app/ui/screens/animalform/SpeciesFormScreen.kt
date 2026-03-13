@@ -1,7 +1,19 @@
 package com.terrago.app.ui.screens.animalform
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,8 +21,23 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,7 +48,6 @@ import com.terrago.app.R
 import com.terrago.app.ui.screens.animalform.components.Label
 import com.terrago.app.ui.theme.TerraGOTheme
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,33 +62,31 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
     var humMax by remember { mutableStateOf("") }
     var lightCycle by remember { mutableStateOf("") }
 
-    val scope = rememberCoroutineScope()
-
     TerraGOTheme(dynamicColor = false) {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo",
-                        modifier = Modifier.height(40.dp),
-                        tint = Color.Unspecified
-                    )
-                }, navigationIcon = {
-                    IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            modifier = Modifier
-                                .size(36.dp)
-                                .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                                .padding(4.dp)
+                            painter = painterResource(id = R.drawable.logo),
+                            contentDescription = "Logo",
+                            modifier = Modifier.height(40.dp),
+                            tint = Color.Unspecified
                         )
-                    }
-                }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                    }, navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                                    .padding(4.dp)
+                            )
+                        }
+                    }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
                 )
             }, containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
@@ -230,19 +254,18 @@ fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
                 // Accept Button
                 Button(
                     onClick = {
-                        scope.launch {
-                            viewModel.insertSpecies(
-                                latinName = latinName,
-                                commonName = commonName.ifBlank { null },
-                                description = description.ifBlank { null },
-                                temperatureMin = tempMin.ifBlank { null }?.toDoubleOrNull(),
-                                temperatureMax = tempMax.ifBlank { null }?.toDoubleOrNull(),
-                                humidityMin = humMin.ifBlank { null }?.toDoubleOrNull(),
-                                humidityMax = humMax.ifBlank { null }?.toDoubleOrNull(),
-                                lightCycleH = lightCycle.ifBlank { null }?.toLongOrNull()
-                            )
-                            onBack()
-                        }
+                        viewModel.insertSpecies(
+                            latinName = latinName,
+                            commonName = commonName.ifBlank { null },
+                            description = description.ifBlank { null },
+                            temperatureMin = tempMin.ifBlank { null }?.toDoubleOrNull(),
+                            temperatureMax = tempMax.ifBlank { null }?.toDoubleOrNull(),
+                            humidityMin = humMin.ifBlank { null }?.toDoubleOrNull(),
+                            humidityMax = humMax.ifBlank { null }?.toDoubleOrNull(),
+                            lightCycleH = lightCycle.ifBlank { null }?.toLongOrNull()
+                        )
+                        onBack()
+
                     },
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
