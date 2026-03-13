@@ -78,6 +78,8 @@ dependencies {
     implementation(libs.coil.compose)
     // Planning notifications
     implementation(libs.work.runtime.ktx)
+    // Image Cropper
+    implementation(libs.android.image.cropper)
 }
 
 sqldelight{

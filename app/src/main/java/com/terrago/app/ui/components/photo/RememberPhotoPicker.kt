@@ -11,11 +11,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
+import com.canhub.cropper.CropImageView
 import java.io.File
 
 /**
  * Custom hook for capturing or picking photos.
  * Processes images to Full HD resolution with correct EXIF rotation.
+ * Now includes a cropping step to fit the app UI.
  */
 @Composable
 fun rememberPhotoPicker(onPhotoCaptured: (ByteArray) -> Unit): PhotoPickerActions {
@@ -40,17 +45,48 @@ fun rememberPhotoPicker(onPhotoCaptured: (ByteArray) -> Unit): PhotoPickerAction
         }
     }
 
+    // Launcher for the cropping activity
+    val cropLauncher = rememberLauncherForActivityResult(
+        contract = CropImageContract()
+    ) { result ->
+        if (result.isSuccessful) {
+            // Use the cropped image URI
+            result.uriContent?.let { processAndSend(it) }
+        } else if (result.error != null) {
+            result.error?.printStackTrace()
+            Toast.makeText(context, "Cropping failed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Helper to start cropping with desired settings
+    val startCrop = { uri: Uri ->
+        cropLauncher.launch(
+            CropImageContractOptions(
+                uri = uri,
+                cropImageOptions = CropImageOptions(
+                    guidelines = CropImageView.Guidelines.ON,
+                    // Set fixAspectRatio to true and 1:1 if you want square photos
+                    fixAspectRatio = true,
+                    aspectRatioX = 1,
+                    aspectRatioY = 1,
+                    cropShape = CropImageView.CropShape.RECTANGLE,
+                    showProgressBar = true
+                )
+            )
+        )
+    }
+
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        uri?.let { processAndSend(it) }
+        uri?.let { startCrop(it) }
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            processAndSend(photoUri)
+            startCrop(photoUri)
         }
     }
 
