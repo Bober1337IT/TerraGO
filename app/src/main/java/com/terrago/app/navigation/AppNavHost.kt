@@ -12,6 +12,8 @@ import com.terrago.app.database.repositories.AnimalsRepository
 import com.terrago.app.database.repositories.ObjectsRepository
 import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.TerraGoDatabase
+import com.terrago.app.domain.DeleteAnimalUseCase
+import com.terrago.app.domain.UpsertAnimalUseCase
 import com.terrago.app.navigation.graph.animalFormGraph
 import com.terrago.app.navigation.graph.animalDetailsGraph
 import com.terrago.app.navigation.graph.animalsGraph
@@ -39,7 +41,9 @@ fun AppNavHost(database: TerraGoDatabase,  modifier: Modifier = Modifier) {
         factory = AnimalFormViewModelFactory(
             animalsRepository,
             objectsRepository,
-            speciesRepository
+            speciesRepository,
+            UpsertAnimalUseCase(animalsRepository),
+            DeleteAnimalUseCase(animalsRepository)
         )
     )
 

@@ -10,6 +10,8 @@ import com.terrago.app.database.repositories.ObjectsRepository
 import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.Objects
 import com.terrago.app.db.Species
+import com.terrago.app.domain.DeleteAnimalUseCase
+import com.terrago.app.domain.UpsertAnimalUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +31,9 @@ import kotlinx.coroutines.withContext
 class AnimalFormViewModel(
     private val animalsRepository: AnimalsRepository,
     private val objectsRepository: ObjectsRepository,
-    private val speciesRepository: SpeciesRepository
+    private val speciesRepository: SpeciesRepository,
+    private val upsertAnimalUseCase: UpsertAnimalUseCase,
+    private val deleteAnimalUseCase: DeleteAnimalUseCase
 ) : ViewModel() {
 
     // Internal mutable source that holds the current state of the entire form
@@ -185,38 +189,21 @@ class AnimalFormViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                if (animalId == null) {
-                    animalsRepository.insertAnimal(
-                        objectId = objectId,
-                        speciesId = speciesId,
-                        name = name,
-                        gender = gender,
-                        birthDate = birthDate,
-                        lastFeeding = lastFeeding,
-                        lastSpray = lastSpray,
-                        lastMolt = lastMolt,
-                        size = size,
-                        sizeType = sizeType,
-                        notes = notes,
-                        photo = photo
-                    )
-                } else {
-                    animalsRepository.updateAnimal(
-                        animalId = animalId,
-                        objectId = objectId,
-                        speciesId = speciesId,
-                        name = name,
-                        gender = gender,
-                        birthDate = birthDate,
-                        lastFeeding = lastFeeding,
-                        lastSpray = lastSpray,
-                        lastMolt = lastMolt,
-                        size = size,
-                        sizeType = sizeType,
-                        notes = notes,
-                        photo = photo,
-                    )
-                }
+                upsertAnimalUseCase(
+                    animalId = animalId,
+                    objectId = objectId,
+                    speciesId = speciesId,
+                    name = name,
+                    gender = gender,
+                    birthDate = birthDate,
+                    lastFeeding = lastFeeding,
+                    lastSpray = lastSpray,
+                    lastMolt = lastMolt,
+                    size = size,
+                    sizeType = sizeType,
+                    notes = notes,
+                    photo = photo
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -226,7 +213,7 @@ class AnimalFormViewModel(
     fun deleteAnimal(animalId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                animalsRepository.deleteAnimal(animalId)
+                deleteAnimalUseCase(animalId)
                 withContext(Dispatchers.Main) {
                     clearForm()
                 }
