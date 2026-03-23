@@ -7,6 +7,7 @@ import com.terrago.app.database.repositories.ObjectsRepository
 import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.domain.DeleteAnimalUseCase
 import com.terrago.app.domain.UpsertAnimalUseCase
+import com.terrago.app.domain.UpsertObjectUseCase
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 
 class AnimalFormViewModelFactory(
@@ -14,11 +15,19 @@ class AnimalFormViewModelFactory(
     private val objectsRepo: ObjectsRepository,
     private val speciesRepo: SpeciesRepository,
     private val upsertAnimalUseCase: UpsertAnimalUseCase,
-    private val deleteAnimalUseCase: DeleteAnimalUseCase
+    private val deleteAnimalUseCase: DeleteAnimalUseCase,
+    private val upsertObjectUseCase: UpsertObjectUseCase
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return AnimalFormViewModel(animalsRepo, objectsRepo, speciesRepo, upsertAnimalUseCase, deleteAnimalUseCase) as T
+        return AnimalFormViewModel(
+            animalsRepo,
+            objectsRepo,
+            speciesRepo,
+            upsertAnimalUseCase,
+            deleteAnimalUseCase,
+            upsertObjectUseCase
+        ) as T
     }
 }

@@ -38,9 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -325,24 +323,16 @@ fun ObjectFormScreen(
                 // Accept Button
                 Button(
                     onClick = {
-                        if (uiState.editingObjectId == null) {
-                            viewModel.insertObject(
-                                name = uiState.objectName,
-                                description = uiState.objectDescription.ifBlank { null },
-                                length = uiState.objectLength.ifBlank { null }?.toLongOrNull(),
-                                width = uiState.objectWidth.ifBlank { null }?.toLongOrNull(),
-                                height = uiState.objectHeight.ifBlank { null }?.toLongOrNull(),
-                                location = uiState.objectLocationName.ifBlank { null })
-                        } else {
-                            viewModel.updateObject(
-                                objectId = uiState.editingObjectId!!,
-                                name = uiState.objectName,
-                                description = uiState.objectDescription.ifBlank { null },
-                                length = uiState.objectLength.ifBlank { null }?.toLongOrNull(),
-                                width = uiState.objectWidth.ifBlank { null }?.toLongOrNull(),
-                                height = uiState.objectHeight.ifBlank { null }?.toLongOrNull(),
-                                location = uiState.objectLocationName.ifBlank { null })
-                        }
+                        viewModel.upsertObject(
+                            objectId = uiState.editingObjectId,
+                            name = uiState.objectName,
+                            description = uiState.objectDescription.ifBlank { null },
+                            length = uiState.objectLength.ifBlank { null }?.toLongOrNull(),
+                            width = uiState.objectWidth.ifBlank { null }?.toLongOrNull(),
+                            height = uiState.objectHeight.ifBlank { null }?.toLongOrNull(),
+                            location = uiState.objectLocationName.ifBlank { null }
+                        )
+
                         if (uiState.editingObjectId == null) {
                             onBack()
                         } else {

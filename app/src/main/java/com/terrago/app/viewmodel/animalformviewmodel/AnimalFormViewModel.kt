@@ -12,6 +12,7 @@ import com.terrago.app.db.Objects
 import com.terrago.app.db.Species
 import com.terrago.app.domain.DeleteAnimalUseCase
 import com.terrago.app.domain.UpsertAnimalUseCase
+import com.terrago.app.domain.UpsertObjectUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +34,8 @@ class AnimalFormViewModel(
     private val objectsRepository: ObjectsRepository,
     private val speciesRepository: SpeciesRepository,
     private val upsertAnimalUseCase: UpsertAnimalUseCase,
-    private val deleteAnimalUseCase: DeleteAnimalUseCase
+    private val deleteAnimalUseCase: DeleteAnimalUseCase,
+    private val upsertObjectUseCase: UpsertObjectUseCase,
 ) : ViewModel() {
 
     // Internal mutable source that holds the current state of the entire form
@@ -223,7 +225,8 @@ class AnimalFormViewModel(
         }
     }
 
-    fun insertObject(
+    fun upsertObject(
+        objectId: Long?,
         name: String,
         description: String?,
         length: Long?,
@@ -233,47 +236,22 @@ class AnimalFormViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                objectsRepository.insertObject(
-                    name = name,
-                    description = description,
-                    length = length,
-                    width = width,
-                    height = height,
-                    locationName = location
-                )
-                // Explicitly fetch latest to select it
-                val lastId = objectsRepository.getAllObjects().first()
-                    .maxByOrNull { it.object_id }?.object_id
-                withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(selectedObject = lastId) }
-                    clearObjectFields()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    fun updateObject(
-        objectId: Long,
-        name: String,
-        description: String?,
-        length: Long?,
-        width: Long?,
-        height: Long?,
-        location: String?
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                objectsRepository.updateObject(
+                val resultId = upsertObjectUseCase(
                     objectId = objectId,
                     name = name,
                     description = description,
                     length = length,
                     width = width,
                     height = height,
-                    locationName = location
+                    location = location
                 )
+
+                // Explicitly fetch latest to select it
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(selectedObject = resultId) }
+                    clearObjectFields()
+                }
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
