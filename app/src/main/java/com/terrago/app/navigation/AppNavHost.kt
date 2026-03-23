@@ -12,10 +12,16 @@ import com.terrago.app.database.repositories.AnimalsRepository
 import com.terrago.app.database.repositories.ObjectsRepository
 import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.TerraGoDatabase
+import com.terrago.app.domain.DeleteAnimalUseCase
+import com.terrago.app.domain.DeleteObjectUseCase
+import com.terrago.app.domain.UpdateAnimalFieldUseCase
+import com.terrago.app.domain.UpsertAnimalUseCase
+import com.terrago.app.domain.UpsertObjectUseCase
+import com.terrago.app.domain.UpsertSpeciesUserCase
 import com.terrago.app.navigation.graph.animalFormGraph
 import com.terrago.app.navigation.graph.animalDetailsGraph
 import com.terrago.app.navigation.graph.animalsGraph
-import com.terrago.app.viewmodel.animalform.AnimalFormViewModelFactory
+import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModelFactory
 import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
 import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
 
@@ -31,7 +37,10 @@ fun AppNavHost(database: TerraGoDatabase,  modifier: Modifier = Modifier) {
 
     // AnimalsViewModel (for the list/details)
     val animalsViewModel: AnimalsViewModel = viewModel(
-        factory = AnimalsViewModelFactory(animalsRepository)
+        factory = AnimalsViewModelFactory(
+            animalsRepository,
+            UpdateAnimalFieldUseCase(animalsRepository)
+        )
     )
 
     // AnimalFormViewModel (specifically for the Add/Edit screen)
@@ -39,7 +48,12 @@ fun AppNavHost(database: TerraGoDatabase,  modifier: Modifier = Modifier) {
         factory = AnimalFormViewModelFactory(
             animalsRepository,
             objectsRepository,
-            speciesRepository
+            speciesRepository,
+            UpsertAnimalUseCase(animalsRepository),
+            DeleteAnimalUseCase(animalsRepository),
+            UpsertObjectUseCase(objectsRepository),
+            DeleteObjectUseCase(objectsRepository),
+            UpsertSpeciesUserCase(speciesRepository)
         )
     )
 

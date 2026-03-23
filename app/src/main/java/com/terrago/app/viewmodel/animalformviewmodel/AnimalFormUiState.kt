@@ -35,5 +35,6 @@ data class AnimalFormUiState(
     val objectDescription: String = "",
     val objectLength: String = "",
     val objectWidth: String = "",
-    val objectHeight: String = ""
+    val objectHeight: String = "",
+    var editingObjectId: Long? = null
 )

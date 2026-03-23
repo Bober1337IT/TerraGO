@@ -10,6 +10,11 @@ import com.terrago.app.database.repositories.ObjectsRepository
 import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.Objects
 import com.terrago.app.db.Species
+import com.terrago.app.domain.DeleteAnimalUseCase
+import com.terrago.app.domain.DeleteObjectUseCase
+import com.terrago.app.domain.UpsertAnimalUseCase
+import com.terrago.app.domain.UpsertObjectUseCase
+import com.terrago.app.domain.UpsertSpeciesUserCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +34,12 @@ import kotlinx.coroutines.withContext
 class AnimalFormViewModel(
     private val animalsRepository: AnimalsRepository,
     private val objectsRepository: ObjectsRepository,
-    private val speciesRepository: SpeciesRepository
+    private val speciesRepository: SpeciesRepository,
+    private val upsertAnimalUseCase: UpsertAnimalUseCase,
+    private val deleteAnimalUseCase: DeleteAnimalUseCase,
+    private val upsertObjectUseCase: UpsertObjectUseCase,
+    private val deleteObjectUseCase: DeleteObjectUseCase,
+    private val upsertSpeciesUseCase: UpsertSpeciesUserCase
 ) : ViewModel() {
 
     // Internal mutable source that holds the current state of the entire form
@@ -185,38 +195,21 @@ class AnimalFormViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                if (animalId == null) {
-                    animalsRepository.insertAnimal(
-                        objectId = objectId,
-                        speciesId = speciesId,
-                        name = name,
-                        gender = gender,
-                        birthDate = birthDate,
-                        lastFeeding = lastFeeding,
-                        lastSpray = lastSpray,
-                        lastMolt = lastMolt,
-                        size = size,
-                        sizeType = sizeType,
-                        notes = notes,
-                        photo = photo
-                    )
-                } else {
-                    animalsRepository.updateAnimal(
-                        animalId = animalId,
-                        objectId = objectId,
-                        speciesId = speciesId,
-                        name = name,
-                        gender = gender,
-                        birthDate = birthDate,
-                        lastFeeding = lastFeeding,
-                        lastSpray = lastSpray,
-                        lastMolt = lastMolt,
-                        size = size,
-                        sizeType = sizeType,
-                        notes = notes,
-                        photo = photo,
-                    )
-                }
+                upsertAnimalUseCase(
+                    animalId = animalId,
+                    objectId = objectId,
+                    speciesId = speciesId,
+                    name = name,
+                    gender = gender,
+                    birthDate = birthDate,
+                    lastFeeding = lastFeeding,
+                    lastSpray = lastSpray,
+                    lastMolt = lastMolt,
+                    size = size,
+                    sizeType = sizeType,
+                    notes = notes,
+                    photo = photo
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -226,7 +219,7 @@ class AnimalFormViewModel(
     fun deleteAnimal(animalId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                animalsRepository.deleteAnimal(animalId)
+                deleteAnimalUseCase(animalId)
                 withContext(Dispatchers.Main) {
                     clearForm()
                 }
@@ -236,7 +229,8 @@ class AnimalFormViewModel(
         }
     }
 
-    fun insertObject(
+    fun upsertObject(
+        objectId: Long?,
         name: String,
         description: String?,
         length: Long?,
@@ -246,47 +240,21 @@ class AnimalFormViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                objectsRepository.insertObject(
-                    name = name,
-                    description = description,
-                    length = length,
-                    width = width,
-                    height = height,
-                    locationName = location
-                )
-                // Explicitly fetch latest to select it
-                val lastId = objectsRepository.getAllObjects().first()
-                    .maxByOrNull { it.object_id }?.object_id
-                withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(selectedObject = lastId) }
-                    clearObjectFields()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    fun updateObject(
-        objectId: Long,
-        name: String,
-        description: String?,
-        length: Long?,
-        width: Long?,
-        height: Long?,
-        location: String?
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                objectsRepository.updateObject(
+                val resultId = upsertObjectUseCase(
                     objectId = objectId,
                     name = name,
                     description = description,
                     length = length,
                     width = width,
                     height = height,
-                    locationName = location
+                    location = location
                 )
+
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(selectedObject = resultId) }
+                    clearObjectFields()
+                }
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -296,7 +264,7 @@ class AnimalFormViewModel(
     fun deleteObject(objectId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                objectsRepository.deleteObject(objectId)
+                deleteObjectUseCase(objectId)
                 if (_uiState.value.selectedObject == objectId) {
                     withContext(Dispatchers.Main) {
                         _uiState.update { it.copy(selectedObject = null) }
@@ -320,23 +288,27 @@ class AnimalFormViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                speciesRepository.insertSpecies(
-                    nameLatin = latinName,
-                    nameCommon = commonName,
-                    description = description,
-                    temperatureMin = temperatureMin,
-                    temperatureMax = temperatureMax,
-                    humidityMin = humidityMin,
-                    humidityMax = humidityMax,
-                    lightCycleH = lightCycleH
+                val lastId = upsertSpeciesUseCase(
+                    latinName,
+                    commonName,
+                    description,
+                    temperatureMin,
+                    temperatureMax,
+                    humidityMin,
+                    humidityMax,
+                    lightCycleH
                 )
-                // Explicitly fetch latest to select it
-                val lastId = speciesRepository.getAllSpecies().first()
-                    .maxByOrNull { it.species_id }?.species_id
+
                 withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(selectedSpecies = lastId, speciesSearchQuery = latinName) }
+                    _uiState.update {
+                        it.copy(
+                            selectedSpecies = lastId,
+                            speciesSearchQuery = latinName
+                        )
+                    }
                     clearSpeciesFields()
                 }
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
