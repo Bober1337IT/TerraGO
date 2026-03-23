@@ -61,7 +61,6 @@ fun ObjectFormScreen(
     viewModel: AnimalFormViewModel, onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var editingObjectId by remember { mutableStateOf<Long?>(null) }
 
     val objects by viewModel.availableObjects.collectAsStateWithLifecycle()
 
@@ -70,7 +69,7 @@ fun ObjectFormScreen(
     }
 
     val clearFields = {
-        editingObjectId = null
+        uiState.editingObjectId = null
         viewModel.clearObjectFields()
     }
 
@@ -97,10 +96,10 @@ fun ObjectFormScreen(
                             )
                         }
                     }, actions = {
-                        if (editingObjectId != null) {
+                        if (uiState.editingObjectId != null) {
                             Button(
                                 onClick = {
-                                    viewModel.deleteObject(editingObjectId!!)
+                                    viewModel.deleteObject(uiState.editingObjectId!!)
                                     clearFields()
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
@@ -153,13 +152,13 @@ fun ObjectFormScreen(
                                     height = obj.height,
                                     description = obj.description,
                                     locationName = obj.location_name,
-                                    isSelected = editingObjectId == obj.object_id,
+                                    isSelected = uiState.editingObjectId == obj.object_id,
                                     onClick = {
                                         viewModel.updateState { it.copy(selectedObject = obj.object_id) }
                                         onBack()
                                     },
                                     onLongClick = {
-                                        editingObjectId = obj.object_id
+                                        uiState.editingObjectId = obj.object_id
                                         viewModel.updateState {
                                             it.copy(
                                                 objectName = obj.name,
@@ -180,7 +179,7 @@ fun ObjectFormScreen(
                 }
 
                 Spacer(Modifier.height(8.dp))
-                Label(if (editingObjectId == null) "or add new one:" else "update selected one:")
+                Label(if (uiState.editingObjectId == null) "or add new one:" else "update selected one:")
 
                 // Name
                 OutlinedTextField(
@@ -326,7 +325,7 @@ fun ObjectFormScreen(
                 // Accept Button
                 Button(
                     onClick = {
-                        if (editingObjectId == null) {
+                        if (uiState.editingObjectId == null) {
                             viewModel.insertObject(
                                 name = uiState.objectName,
                                 description = uiState.objectDescription.ifBlank { null },
@@ -336,7 +335,7 @@ fun ObjectFormScreen(
                                 location = uiState.objectLocationName.ifBlank { null })
                         } else {
                             viewModel.updateObject(
-                                objectId = editingObjectId!!,
+                                objectId = uiState.editingObjectId!!,
                                 name = uiState.objectName,
                                 description = uiState.objectDescription.ifBlank { null },
                                 length = uiState.objectLength.ifBlank { null }?.toLongOrNull(),
@@ -344,7 +343,7 @@ fun ObjectFormScreen(
                                 height = uiState.objectHeight.ifBlank { null }?.toLongOrNull(),
                                 location = uiState.objectLocationName.ifBlank { null })
                         }
-                        if (editingObjectId == null) {
+                        if (uiState.editingObjectId == null) {
                             onBack()
                         } else {
                             clearFields()
@@ -363,7 +362,7 @@ fun ObjectFormScreen(
                         modifier = Modifier.padding(horizontal = 16.dp)
                     ) {
                         Text(
-                            if (editingObjectId == null) "ACCEPT" else "UPDATE",
+                            if (uiState.editingObjectId == null) "ACCEPT" else "UPDATE",
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimary
                         )
