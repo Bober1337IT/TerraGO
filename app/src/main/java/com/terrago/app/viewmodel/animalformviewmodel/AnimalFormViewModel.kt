@@ -11,6 +11,7 @@ import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.Objects
 import com.terrago.app.db.Species
 import com.terrago.app.domain.DeleteAnimalUseCase
+import com.terrago.app.domain.DeleteObjectUseCase
 import com.terrago.app.domain.UpsertAnimalUseCase
 import com.terrago.app.domain.UpsertObjectUseCase
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,7 @@ class AnimalFormViewModel(
     private val upsertAnimalUseCase: UpsertAnimalUseCase,
     private val deleteAnimalUseCase: DeleteAnimalUseCase,
     private val upsertObjectUseCase: UpsertObjectUseCase,
+    private val deleteObjectUseCase: DeleteObjectUseCase,
 ) : ViewModel() {
 
     // Internal mutable source that holds the current state of the entire form
@@ -261,7 +263,7 @@ class AnimalFormViewModel(
     fun deleteObject(objectId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                objectsRepository.deleteObject(objectId)
+                deleteObjectUseCase(objectId)
                 if (_uiState.value.selectedObject == objectId) {
                     withContext(Dispatchers.Main) {
                         _uiState.update { it.copy(selectedObject = null) }

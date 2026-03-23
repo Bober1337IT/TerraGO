@@ -13,6 +13,7 @@ import com.terrago.app.database.repositories.ObjectsRepository
 import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.TerraGoDatabase
 import com.terrago.app.domain.DeleteAnimalUseCase
+import com.terrago.app.domain.DeleteObjectUseCase
 import com.terrago.app.domain.UpsertAnimalUseCase
 import com.terrago.app.domain.UpsertObjectUseCase
 import com.terrago.app.navigation.graph.animalFormGraph
@@ -45,7 +46,8 @@ fun AppNavHost(database: TerraGoDatabase,  modifier: Modifier = Modifier) {
             speciesRepository,
             UpsertAnimalUseCase(animalsRepository),
             DeleteAnimalUseCase(animalsRepository),
-            UpsertObjectUseCase(objectsRepository)
+            UpsertObjectUseCase(objectsRepository),
+            DeleteObjectUseCase(objectsRepository)
         )
     )
 
