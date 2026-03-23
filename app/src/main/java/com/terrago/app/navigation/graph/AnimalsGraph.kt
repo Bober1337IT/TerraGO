@@ -5,8 +5,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.terrago.app.navigation.Screen
 import com.terrago.app.navigation.Screen.AnimalFormRoutes
-import com.terrago.app.ui.screens.animals.AnimalsScreen
-import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
+import com.terrago.app.presentation.ui.screens.animals.AnimalsScreen
+import com.terrago.app.presentation.viewmodel.animalsviewmodel.AnimalsViewModel
 
 fun NavGraphBuilder.animalsGraph(
     viewModel: AnimalsViewModel,
