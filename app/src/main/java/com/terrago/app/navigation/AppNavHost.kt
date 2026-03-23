@@ -2,28 +2,28 @@ package com.terrago.app.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModelFactory
+import com.terrago.app.presentation.viewmodel.animalsviewmodel.AnimalsViewModelFactory
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.terrago.app.database.repositories.AnimalsRepository
-import com.terrago.app.database.repositories.ObjectsRepository
-import com.terrago.app.database.repositories.SpeciesRepository
+import com.terrago.app.data.repositories.AnimalsRepository
+import com.terrago.app.data.repositories.ObjectsRepository
+import com.terrago.app.data.repositories.SpeciesRepository
 import com.terrago.app.db.TerraGoDatabase
-import com.terrago.app.domain.DeleteAnimalUseCase
-import com.terrago.app.domain.DeleteObjectUseCase
-import com.terrago.app.domain.UpdateAnimalFieldUseCase
-import com.terrago.app.domain.UpsertAnimalUseCase
-import com.terrago.app.domain.UpsertObjectUseCase
-import com.terrago.app.domain.UpsertSpeciesUserCase
+import com.terrago.app.domain.usecase.DeleteAnimalUseCase
+import com.terrago.app.domain.usecase.DeleteObjectUseCase
+import com.terrago.app.domain.usecase.UpdateAnimalFieldUseCase
+import com.terrago.app.domain.usecase.UpsertAnimalUseCase
+import com.terrago.app.domain.usecase.UpsertObjectUseCase
+import com.terrago.app.domain.usecase.UpsertSpeciesUserCase
 import com.terrago.app.navigation.graph.animalFormGraph
 import com.terrago.app.navigation.graph.animalDetailsGraph
 import com.terrago.app.navigation.graph.animalsGraph
-import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModelFactory
-import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
-import com.terrago.app.viewmodel.animalsviewmodel.AnimalsViewModel
+import com.terrago.app.presentation.viewmodel.animalformviewmodel.AnimalFormViewModelFactory
+import com.terrago.app.presentation.viewmodel.animalformviewmodel.AnimalFormViewModel
+import com.terrago.app.presentation.viewmodel.animalsviewmodel.AnimalsViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

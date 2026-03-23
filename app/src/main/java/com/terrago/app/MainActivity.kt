@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
-import com.terrago.app.database.DatabaseProvider
+import com.terrago.app.data.database.DatabaseProvider
 
 
 class MainActivity : ComponentActivity() {
