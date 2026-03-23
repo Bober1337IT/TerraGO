@@ -26,6 +26,7 @@ class UpsertObjectUseCase(
                 locationName = location
             )
 
+            // Explicitly fetch latest to select it
             objectsRepository.getAllObjects()
                 .first()
                 .maxByOrNull { it.object_id }

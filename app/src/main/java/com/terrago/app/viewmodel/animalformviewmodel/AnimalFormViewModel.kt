@@ -14,6 +14,7 @@ import com.terrago.app.domain.DeleteAnimalUseCase
 import com.terrago.app.domain.DeleteObjectUseCase
 import com.terrago.app.domain.UpsertAnimalUseCase
 import com.terrago.app.domain.UpsertObjectUseCase
+import com.terrago.app.domain.UpsertSpeciesUserCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,6 +39,7 @@ class AnimalFormViewModel(
     private val deleteAnimalUseCase: DeleteAnimalUseCase,
     private val upsertObjectUseCase: UpsertObjectUseCase,
     private val deleteObjectUseCase: DeleteObjectUseCase,
+    private val upsertSpeciesUseCase: UpsertSpeciesUserCase
 ) : ViewModel() {
 
     // Internal mutable source that holds the current state of the entire form
@@ -248,7 +250,6 @@ class AnimalFormViewModel(
                     location = location
                 )
 
-                // Explicitly fetch latest to select it
                 withContext(Dispatchers.Main) {
                     _uiState.update { it.copy(selectedObject = resultId) }
                     clearObjectFields()
@@ -287,23 +288,27 @@ class AnimalFormViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                speciesRepository.insertSpecies(
-                    nameLatin = latinName,
-                    nameCommon = commonName,
-                    description = description,
-                    temperatureMin = temperatureMin,
-                    temperatureMax = temperatureMax,
-                    humidityMin = humidityMin,
-                    humidityMax = humidityMax,
-                    lightCycleH = lightCycleH
+                val lastId = upsertSpeciesUseCase(
+                    latinName,
+                    commonName,
+                    description,
+                    temperatureMin,
+                    temperatureMax,
+                    humidityMin,
+                    humidityMax,
+                    lightCycleH
                 )
-                // Explicitly fetch latest to select it
-                val lastId = speciesRepository.getAllSpecies().first()
-                    .maxByOrNull { it.species_id }?.species_id
+
                 withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(selectedSpecies = lastId, speciesSearchQuery = latinName) }
+                    _uiState.update {
+                        it.copy(
+                            selectedSpecies = lastId,
+                            speciesSearchQuery = latinName
+                        )
+                    }
                     clearSpeciesFields()
                 }
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }

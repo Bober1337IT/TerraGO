@@ -1,4 +1,4 @@
-package com.terrago.app.viewmodel.animalform
+package com.terrago.app.viewmodel.animalformviewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -9,7 +9,7 @@ import com.terrago.app.domain.DeleteAnimalUseCase
 import com.terrago.app.domain.DeleteObjectUseCase
 import com.terrago.app.domain.UpsertAnimalUseCase
 import com.terrago.app.domain.UpsertObjectUseCase
-import com.terrago.app.viewmodel.animalformviewmodel.AnimalFormViewModel
+import com.terrago.app.domain.UpsertSpeciesUserCase
 
 class AnimalFormViewModelFactory(
     private val animalsRepo: AnimalsRepository,
@@ -19,6 +19,7 @@ class AnimalFormViewModelFactory(
     private val deleteAnimalUseCase: DeleteAnimalUseCase,
     private val upsertObjectUseCase: UpsertObjectUseCase,
     private val deleteObjectUseCase: DeleteObjectUseCase,
+    private val upsertSpeciesUseCase: UpsertSpeciesUserCase
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -31,6 +32,7 @@ class AnimalFormViewModelFactory(
             deleteAnimalUseCase,
             upsertObjectUseCase,
             deleteObjectUseCase,
+            upsertSpeciesUseCase
         ) as T
     }
 }
