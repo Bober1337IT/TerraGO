@@ -14,6 +14,7 @@ import com.terrago.app.database.repositories.SpeciesRepository
 import com.terrago.app.db.TerraGoDatabase
 import com.terrago.app.domain.DeleteAnimalUseCase
 import com.terrago.app.domain.DeleteObjectUseCase
+import com.terrago.app.domain.UpdateAnimalFieldUseCase
 import com.terrago.app.domain.UpsertAnimalUseCase
 import com.terrago.app.domain.UpsertObjectUseCase
 import com.terrago.app.domain.UpsertSpeciesUserCase
@@ -36,7 +37,10 @@ fun AppNavHost(database: TerraGoDatabase,  modifier: Modifier = Modifier) {
 
     // AnimalsViewModel (for the list/details)
     val animalsViewModel: AnimalsViewModel = viewModel(
-        factory = AnimalsViewModelFactory(animalsRepository)
+        factory = AnimalsViewModelFactory(
+            animalsRepository,
+            UpdateAnimalFieldUseCase(animalsRepository)
+        )
     )
 
     // AnimalFormViewModel (specifically for the Add/Edit screen)
