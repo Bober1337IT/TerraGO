@@ -1,10 +1,11 @@
 package com.terrago.app.domain.usecase
 
-import com.terrago.app.data.repositories.ObjectsRepository
+import com.terrago.app.domain.repository.ObjectsRepository
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
-class UpsertObjectUseCase(
-    private val objectsRepository: ObjectsRepository
+class UpsertObjectUseCase @Inject constructor(
+    private val repository: ObjectsRepository
 ) {
 
     suspend operator fun invoke(
@@ -17,7 +18,7 @@ class UpsertObjectUseCase(
         location: String?
     ): Long {
         return if (objectId == null) {
-            objectsRepository.insertObject(
+            repository.insertObject(
                 name = name,
                 description = description,
                 length = length,
@@ -27,13 +28,13 @@ class UpsertObjectUseCase(
             )
 
             // Explicitly fetch latest to select it
-            objectsRepository.getAllObjects()
+            repository.getAllObjects()
                 .first()
                 .maxByOrNull { it.object_id }
                 ?.object_id ?: -1L
 
         } else {
-            objectsRepository.updateObject(
+            repository.updateObject(
                 objectId = objectId,
                 name = name,
                 description = description,

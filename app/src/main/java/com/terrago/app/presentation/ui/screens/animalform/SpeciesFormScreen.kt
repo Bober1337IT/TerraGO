@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.terrago.app.R
 import com.terrago.app.presentation.ui.screens.animalform.components.Label
@@ -49,7 +50,10 @@ import com.terrago.app.presentation.viewmodel.animalformviewmodel.AnimalFormView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SpeciesFormScreen(viewModel: AnimalFormViewModel, onBack: () -> Unit) {
+fun SpeciesFormScreen(
+    viewModel: AnimalFormViewModel = hiltViewModel(),
+    onBack: () -> Unit
+) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

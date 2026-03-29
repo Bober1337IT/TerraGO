@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.terrago.app.presentation.ui.components.UpdateSizeDialog
 import com.terrago.app.presentation.ui.theme.TerraGOTheme
@@ -20,7 +21,9 @@ import com.terrago.app.presentation.ui.screens.animals.components.topbar.TopActi
 
 @Composable
 fun AnimalsScreen(
-    viewModel: AnimalsViewModel, onAnimalClick: (Long) -> Unit, onAddAnimalClick: () -> Unit
+    viewModel: AnimalsViewModel = hiltViewModel(),
+    onAnimalClick: (Long) -> Unit,
+    onAddAnimalClick: () -> Unit
 ) {
     val animals by viewModel.animalsPreview.collectAsStateWithLifecycle()
     var currentAction by remember { mutableStateOf(ListAction.NAVIGATE) }

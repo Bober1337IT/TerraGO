@@ -1,11 +1,11 @@
-package com.terrago.app.navigation.graph
+package com.terrago.app.presentation.navigation.graph
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.terrago.app.navigation.Screen
-import com.terrago.app.navigation.Screen.AnimalFormRoutes
+import com.terrago.app.presentation.navigation.Screen
+import com.terrago.app.presentation.navigation.Screen.AnimalFormRoutes
 import com.terrago.app.presentation.ui.screens.animaldetails.AnimalDetailsScreen
 import com.terrago.app.presentation.viewmodel.animalsviewmodel.AnimalsViewModel
 

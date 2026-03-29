@@ -65,10 +65,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.terrago.app.R
-import com.terrago.app.navigation.Screen.AnimalFormRoutes
+import com.terrago.app.presentation.navigation.Screen.AnimalFormRoutes
 import com.terrago.app.presentation.ui.components.photo.PhotoFromByteArray
 import com.terrago.app.presentation.ui.components.photo.rememberPhotoPicker
 import com.terrago.app.presentation.ui.screens.animalform.components.DeleteConfirmationDialog
@@ -81,7 +82,7 @@ import com.terrago.app.presentation.viewmodel.animalformviewmodel.AnimalFormView
 @Composable
 fun AnimalFormScreen(
     animalId: Long?,
-    viewModel: AnimalFormViewModel,
+    viewModel: AnimalFormViewModel = hiltViewModel(),
     navController: NavController,
     onBack: () -> Unit
 ) {

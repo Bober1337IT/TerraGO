@@ -6,14 +6,17 @@ import com.terrago.app.data.database.entity.AnimalDetails
 import com.terrago.app.data.database.entity.AnimalPreview
 import com.terrago.app.db.Animals
 import com.terrago.app.db.TerraGoDatabase
+import com.terrago.app.domain.repository.AnimalsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 
-class AnimalsRepository(private val db: TerraGoDatabase) {
-
-    fun getAnimalsPreview(): Flow<List<AnimalPreview>> {
+class AnimalsRepositoryImpl @Inject constructor(
+    private val db: TerraGoDatabase
+) : AnimalsRepository {
+    override fun getAnimalsPreview(): Flow<List<AnimalPreview>> {
         return db.animalsQueries
             .getAnimalsWithDetails()
             .asFlow()
@@ -36,7 +39,7 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
             }
     }
 
-    fun getAnimalsDetailsById(animalId: Long): Flow<AnimalDetails?> {
+    override fun getAnimalsDetailsById(animalId: Long): Flow<AnimalDetails?> {
         return db.animalsQueries
             .getAnimalsWithDetailsById(animalId)
             .asFlow()
@@ -74,19 +77,19 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
             }
     }
 
-    fun insertAnimal(
+    override fun insertAnimal(
         objectId: Long,
         speciesId: Long,
-        name: String? = null,
-        gender: String? = null,
-        birthDate: String? = null,
-        lastFeeding: String? = null,
-        lastSpray: String? = null,
-        lastMolt: String? = null,
-        size: Long? = null,
-        sizeType: Long? = null,
-        notes: String? = null,
-        photo: ByteArray? = null
+        name: String?,
+        gender: String?,
+        birthDate: String?,
+        lastFeeding: String?,
+        lastSpray: String?,
+        lastMolt: String?,
+        size: Long?,
+        sizeType: Long?,
+        notes: String?,
+        photo: ByteArray?
     ) {
         db.animalsQueries.insertAnimal(
             objectId,
@@ -104,7 +107,7 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
         )
     }
 
-    fun updateAnimal(
+    override fun updateAnimal(
         animalId: Long,
         objectId: Long,
         speciesId: Long,
@@ -136,27 +139,27 @@ class AnimalsRepository(private val db: TerraGoDatabase) {
         )
     }
 
-    fun setLastFeeding(animalId: Long) {
+    override fun setLastFeeding(animalId: Long) {
         db.animalsQueries.setLastFeeding(animalId)
     }
 
-    fun setLastSpray(animalId: Long) {
+    override fun setLastSpray(animalId: Long) {
         db.animalsQueries.setLastSpray(animalId)
     }
 
-    fun setLastMolt(animalId: Long) {
+    override fun setLastMolt(animalId: Long) {
         db.animalsQueries.setLastMolt(animalId)
     }
 
-    fun setSize(animalId: Long, size: Long) {
+    override fun setSize(animalId: Long, size: Long) {
         db.animalsQueries.setSize(size, animalId)
     }
 
-    fun deleteAnimal(animalId: Long) {
+    override fun deleteAnimal(animalId: Long) {
         db.animalsQueries.deleteAnimal(animalId)
     }
 
-    fun getAnimalById(id: Long): Flow<Animals?> {
+    override fun getAnimalById(id: Long): Flow<Animals?> {
         return db.animalsQueries
             .getAnimalsById(id)
             .asFlow()

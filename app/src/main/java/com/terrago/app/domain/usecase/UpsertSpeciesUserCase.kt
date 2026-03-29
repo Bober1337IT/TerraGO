@@ -1,10 +1,11 @@
 package com.terrago.app.domain.usecase
 
-import com.terrago.app.data.repositories.SpeciesRepository
+import com.terrago.app.domain.repository.SpeciesRepository
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
-class UpsertSpeciesUserCase(
-    private val speciesRepository: SpeciesRepository
+class UpsertSpeciesUserCase @Inject constructor(
+    private val repository: SpeciesRepository
 ) {
     suspend operator fun invoke(
         latinName: String,
@@ -16,7 +17,7 @@ class UpsertSpeciesUserCase(
         humidityMax: Double?,
         lightCycleH: Long?
     ): Long {
-        speciesRepository.insertSpecies(
+        repository.insertSpecies(
             nameLatin = latinName,
             nameCommon = commonName,
             description = description,
@@ -28,7 +29,7 @@ class UpsertSpeciesUserCase(
         )
 
         // Explicitly fetch latest to select it
-        return speciesRepository.getAllSpecies()
+        return repository.getAllSpecies()
             .first()
             .maxByOrNull { it.species_id }
             ?.species_id ?: -1L

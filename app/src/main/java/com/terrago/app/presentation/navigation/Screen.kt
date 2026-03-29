@@ -1,4 +1,4 @@
-package com.terrago.app.navigation
+package com.terrago.app.presentation.navigation
 
 sealed class Screen(val route: String) {
 

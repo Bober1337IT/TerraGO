@@ -1,21 +1,23 @@
 package com.terrago.app.data.database
 
 import android.content.Context
-import com.terrago.app.data.repositories.SpeciesRepository
 import com.terrago.app.db.Species
 import kotlinx.coroutines.flow.first
 import androidx.core.content.edit
+import com.terrago.app.domain.repository.SpeciesRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class AppInitializer(
-    context: Context,
-    private val speciesRepository: SpeciesRepository
+class AppInitializer @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val repository: SpeciesRepository
 ) {
     private val prefs = context.getSharedPreferences("terra_go_prefs", Context.MODE_PRIVATE)
 
     suspend fun initialize() {
         // Check if initialization has already happened to avoid unnecessary DB queries
         if (!prefs.getBoolean("is_species_prepopulated", false)) {
-            val existingSpecies = speciesRepository.getAllSpecies().first()
+            val existingSpecies = repository.getAllSpecies().first()
             if (existingSpecies.isEmpty()) {
                 prepopulateSpecies()
             }
@@ -1224,7 +1226,7 @@ class AppInitializer(
         )
 
         defaultSpecies.forEach { spec ->
-            speciesRepository.insertSpecies(
+            repository.insertSpecies(
                 nameLatin = spec.name_latin,
                 nameCommon = spec.name_common,
                 description = spec.description,

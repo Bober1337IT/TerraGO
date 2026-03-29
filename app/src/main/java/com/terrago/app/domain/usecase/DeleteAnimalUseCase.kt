@@ -1,11 +1,12 @@
 package com.terrago.app.domain.usecase
 
-import com.terrago.app.data.repositories.AnimalsRepository
+import com.terrago.app.domain.repository.AnimalsRepository
+import javax.inject.Inject
 
-class DeleteAnimalUseCase(
-    private val animalsRepository: AnimalsRepository
+class DeleteAnimalUseCase @Inject constructor(
+    private val repository: AnimalsRepository
 ) {
     operator fun invoke(animalId: Long) {
-        animalsRepository.deleteAnimal(animalId)
+        repository.deleteAnimal(animalId)
     }
 }

@@ -1,9 +1,10 @@
 package com.terrago.app.domain.usecase
 
-import com.terrago.app.data.repositories.AnimalsRepository
+import com.terrago.app.domain.repository.AnimalsRepository
+import javax.inject.Inject
 
-class UpsertAnimalUseCase(
-    private val animalsRepository: AnimalsRepository
+class UpsertAnimalUseCase @Inject constructor(
+    private val repository: AnimalsRepository
 ) {
 
     operator fun invoke(
@@ -22,7 +23,7 @@ class UpsertAnimalUseCase(
         photo: ByteArray?
     ) {
         if (animalId == null) {
-            animalsRepository.insertAnimal(
+            repository.insertAnimal(
                 objectId = objectId,
                 speciesId = speciesId,
                 name = name,
@@ -37,7 +38,7 @@ class UpsertAnimalUseCase(
                 photo = photo
             )
         } else {
-            animalsRepository.updateAnimal(
+            repository.updateAnimal(
                 animalId = animalId,
                 objectId = objectId,
                 speciesId = speciesId,

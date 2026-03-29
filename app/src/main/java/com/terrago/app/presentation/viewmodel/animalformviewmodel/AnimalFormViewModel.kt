@@ -5,16 +5,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.terrago.app.data.repositories.AnimalsRepository
-import com.terrago.app.data.repositories.ObjectsRepository
-import com.terrago.app.data.repositories.SpeciesRepository
 import com.terrago.app.db.Objects
 import com.terrago.app.db.Species
+import com.terrago.app.domain.repository.AnimalsRepository
+import com.terrago.app.domain.repository.ObjectsRepository
+import com.terrago.app.domain.repository.SpeciesRepository
 import com.terrago.app.domain.usecase.DeleteAnimalUseCase
 import com.terrago.app.domain.usecase.DeleteObjectUseCase
 import com.terrago.app.domain.usecase.UpsertAnimalUseCase
 import com.terrago.app.domain.usecase.UpsertObjectUseCase
 import com.terrago.app.domain.usecase.UpsertSpeciesUserCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,8 +31,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class AnimalFormViewModel(
+@HiltViewModel
+class AnimalFormViewModel @Inject constructor(
     private val animalsRepository: AnimalsRepository,
     private val objectsRepository: ObjectsRepository,
     private val speciesRepository: SpeciesRepository,
