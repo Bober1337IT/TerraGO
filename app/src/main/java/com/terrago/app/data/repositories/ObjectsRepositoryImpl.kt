@@ -4,20 +4,24 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.terrago.app.db.Objects
 import com.terrago.app.db.TerraGoDatabase
+import com.terrago.app.domain.repository.ObjectsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class ObjectsRepository(private val db: TerraGoDatabase) {
+class ObjectsRepositoryImpl @Inject constructor(
+    private val db: TerraGoDatabase
+) : ObjectsRepository {
 
-    fun getAllObjects(): Flow<List<Objects>> {
+    override fun getAllObjects(): Flow<List<Objects>> {
         return db.objectsQueries
             .getAllObjects()
             .asFlow()
             .mapToList(context = Dispatchers.IO)
     }
 
-    fun getObjectById(id: Long): Flow<Objects?> {
+    override fun getObjectById(id: Long): Flow<Objects?> {
         return db.objectsQueries
             .getObjectById(id)
             .asFlow()
@@ -25,13 +29,13 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
             .map { it.firstOrNull() }
     }
 
-    fun insertObject(
+    override fun insertObject(
         name: String,
-        description: String? = null,
-        length: Long? = null,
-        width: Long? = null,
-        height: Long? = null,
-        locationName: String? = null
+        description: String?,
+        length: Long?,
+        width: Long?,
+        height: Long?,
+        locationName: String?
     ) {
         db.objectsQueries.insertObject(
             name,
@@ -43,14 +47,14 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
         )
     }
 
-    fun updateObject(
+    override fun updateObject(
         objectId: Long,
         name: String,
-        description: String? = null,
-        length: Long? = null,
-        width: Long? = null,
-        height: Long? = null,
-        locationName: String? = null
+        description: String?,
+        length: Long?,
+        width: Long?,
+        height: Long?,
+        locationName: String?
     ) {
         db.objectsQueries.updateObject(
             name,
@@ -63,7 +67,7 @@ class ObjectsRepository(private val db: TerraGoDatabase) {
         )
     }
 
-    fun deleteObject(objectId: Long) {
+    override fun deleteObject(objectId: Long) {
         db.objectsQueries.deleteObject(objectId)
     }
 

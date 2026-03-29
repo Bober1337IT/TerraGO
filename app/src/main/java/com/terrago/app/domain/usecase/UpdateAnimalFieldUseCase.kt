@@ -1,8 +1,9 @@
 package com.terrago.app.domain.usecase
 
-import com.terrago.app.data.repositories.AnimalsRepository
+import com.terrago.app.domain.repository.AnimalsRepository
+import javax.inject.Inject
 
-class UpdateAnimalFieldUseCase(
+class UpdateAnimalFieldUseCase @Inject constructor(
     private val repository: AnimalsRepository
 ) {
 

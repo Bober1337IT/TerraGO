@@ -2,20 +2,32 @@ package com.terrago.app.presentation.viewmodel.animalsviewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.terrago.app.data.database.AppInitializer
 import com.terrago.app.data.database.entity.AnimalDetails
 import com.terrago.app.data.database.entity.AnimalPreview
-import com.terrago.app.data.repositories.AnimalsRepository
+import com.terrago.app.domain.repository.AnimalsRepository
 import com.terrago.app.domain.usecase.UpdateAnimalFieldUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AnimalsViewModel(
+@HiltViewModel
+class AnimalsViewModel @Inject constructor(
     private val animalsRepository: AnimalsRepository,
-    private val updateAnimalFieldUseCase: UpdateAnimalFieldUseCase
+    private val updateAnimalFieldUseCase: UpdateAnimalFieldUseCase,
+    private val appInitializer: AppInitializer
 ) : ViewModel() {
+
+    init {
+        // Call the initializer once when the app starts
+        viewModelScope.launch {
+            appInitializer.initialize()
+        }
+    }
 
     val animalsPreview: StateFlow<List<AnimalPreview>> =
         animalsRepository.getAnimalsPreview()

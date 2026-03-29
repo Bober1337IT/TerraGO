@@ -4,20 +4,25 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.terrago.app.db.Species
 import com.terrago.app.db.TerraGoDatabase
+import com.terrago.app.domain.repository.SpeciesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class SpeciesRepository(private val db: TerraGoDatabase) {
 
-    fun getAllSpecies(): Flow<List<Species>> {
+class SpeciesRepositoryImpl @Inject constructor(
+    private val db: TerraGoDatabase
+) : SpeciesRepository {
+
+    override fun getAllSpecies(): Flow<List<Species>> {
         return db.speciesQueries
             .getAllSpecies()
             .asFlow()
             .mapToList(context = Dispatchers.IO)
     }
 
-    fun getSpeciesById(id: Long): Flow<Species?> {
+    override fun getSpeciesById(id: Long): Flow<Species?> {
         return db.speciesQueries
             .getSpeciesById(id)
             .asFlow()
@@ -25,15 +30,15 @@ class SpeciesRepository(private val db: TerraGoDatabase) {
             .map { it.firstOrNull() }
     }
 
-    fun insertSpecies(
+    override fun insertSpecies(
         nameLatin: String,
-        nameCommon: String? = null,
-        description: String? = null,
-        temperatureMin: Double? = null,
-        temperatureMax: Double? = null,
-        humidityMin: Double? = null,
-        humidityMax: Double? = null,
-        lightCycleH: Long? = null
+        nameCommon: String?,
+        description: String?,
+        temperatureMin: Double?,
+        temperatureMax: Double?,
+        humidityMin: Double?,
+        humidityMax: Double?,
+        lightCycleH: Long?
     ) {
         db.speciesQueries.insertSpecies(
             nameLatin,
