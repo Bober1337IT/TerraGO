@@ -9,8 +9,8 @@ import androidx.navigation.compose.rememberNavController
 import com.terrago.app.presentation.navigation.graph.animalFormGraph
 import com.terrago.app.presentation.navigation.graph.animalDetailsGraph
 import com.terrago.app.presentation.navigation.graph.animalsGraph
-import com.terrago.app.presentation.viewmodel.animalformviewmodel.AnimalFormViewModel
-import com.terrago.app.presentation.viewmodel.animalsviewmodel.AnimalsViewModel
+import com.terrago.app.presentation.feature.animalform.AnimalFormViewModel
+import com.terrago.app.presentation.feature.animals.AnimalsViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

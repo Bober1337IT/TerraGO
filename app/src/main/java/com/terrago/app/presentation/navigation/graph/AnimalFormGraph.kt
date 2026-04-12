@@ -8,10 +8,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.terrago.app.presentation.navigation.Screen.AnimalFormRoutes
-import com.terrago.app.presentation.ui.screens.animalform.ObjectFormScreen
-import com.terrago.app.presentation.ui.screens.animalform.AnimalFormScreen
-import com.terrago.app.presentation.ui.screens.animalform.SpeciesFormScreen
-import com.terrago.app.presentation.viewmodel.animalformviewmodel.AnimalFormViewModel
+import com.terrago.app.presentation.feature.animalform.ObjectFormScreen
+import com.terrago.app.presentation.feature.animalform.AnimalFormScreen
+import com.terrago.app.presentation.feature.animalform.SpeciesFormScreen
+import com.terrago.app.presentation.feature.animalform.AnimalFormViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun NavGraphBuilder.animalFormGraph(
