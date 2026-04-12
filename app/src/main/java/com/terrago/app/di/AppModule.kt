@@ -3,13 +3,14 @@ package com.terrago.app.di
 import android.content.Context
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import com.terrago.app.data.repositories.AnimalsRepositoryImpl
-import com.terrago.app.data.repositories.ObjectsRepositoryImpl
-import com.terrago.app.data.repositories.SpeciesRepositoryImpl
+import com.terrago.app.data.repository.AnimalsRepositoryImpl
+import com.terrago.app.data.repository.ObjectsRepositoryImpl
+import com.terrago.app.data.repository.SpeciesRepositoryImpl
 import com.terrago.app.db.TerraGoDatabase
-import com.terrago.app.domain.repository.AnimalsRepository
-import com.terrago.app.domain.repository.ObjectsRepository
-import com.terrago.app.domain.repository.SpeciesRepository
+import com.terrago.app.domain.animals.AnimalsRepository
+import com.terrago.app.domain.objects.ObjectsRepository
+import com.terrago.app.domain.species.SpeciesRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,42 +20,41 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule {
+abstract class AppModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideSqlDriver(@ApplicationContext context: Context): SqlDriver {
-        return AndroidSqliteDriver(
-            schema = TerraGoDatabase.Schema,
-            context = context,
-            name = "TerraGoDatabase.db"
-        )
-    }
+    abstract fun bindAnimalsRepository(
+        impl: AnimalsRepositoryImpl
+    ): AnimalsRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideTerraGoDatabase(driver: SqlDriver): TerraGoDatabase {
-        return TerraGoDatabase(driver)
-    }
+    abstract fun bindSpeciesRepository(
+        impl: SpeciesRepositoryImpl
+    ): SpeciesRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideAnimalRepository(db: TerraGoDatabase): AnimalsRepository {
-        return AnimalsRepositoryImpl(db)
+    abstract fun bindObjectsRepository(
+        impl: ObjectsRepositoryImpl
+    ): ObjectsRepository
 
-    }
+    companion object {
+        @Provides
+        @Singleton
+        fun provideSqlDriver(@ApplicationContext context: Context): SqlDriver {
+            return AndroidSqliteDriver(
+                schema = TerraGoDatabase.Schema,
+                context = context,
+                name = "TerraGoDatabase.db"
+            )
+        }
 
-    @Provides
-    @Singleton
-    fun provideObjectRepository(db: TerraGoDatabase): ObjectsRepository {
-        return ObjectsRepositoryImpl(db)
-
-    }
-
-    @Provides
-    @Singleton
-    fun provideSpeciesRepository(db: TerraGoDatabase): SpeciesRepository {
-        return SpeciesRepositoryImpl(db)
-
+        @Provides
+        @Singleton
+        fun provideTerraGoDatabase(driver: SqlDriver): TerraGoDatabase {
+            return TerraGoDatabase(driver)
+        }
     }
 }
