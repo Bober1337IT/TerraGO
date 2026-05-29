@@ -1,7 +1,6 @@
-package com.terrago.app.data.local.entity
+package com.terrago.app.data.local.dao.projection
 
-// Needed to show a preview list of animals
-data class AnimalPreview(
+data class AnimalPreviewProjection(
     val animalId: Long,
     val animalName: String?,
     val speciesLatinName: String?,

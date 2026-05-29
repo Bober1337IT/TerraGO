@@ -1,49 +1,25 @@
 package com.terrago.app.domain.animals
 
-import com.terrago.app.data.local.entity.AnimalDetails
-import com.terrago.app.data.local.entity.AnimalPreview
-import com.terrago.app.db.Animals
+import com.terrago.app.domain.animals.model.Animal
+import com.terrago.app.domain.animals.model.AnimalDetails
+import com.terrago.app.domain.animals.model.AnimalPreview
 import kotlinx.coroutines.flow.Flow
 
 interface AnimalsRepository {
+
     fun getAnimalsPreview(): Flow<List<AnimalPreview>>
+
     fun getAnimalsDetailsById(animalId: Long): Flow<AnimalDetails?>
 
-    fun insertAnimal(
-        objectId: Long,
-        speciesId: Long,
-        name: String? = null,
-        gender: String? = null,
-        birthDate: String? = null,
-        lastFeeding: String? = null,
-        lastSpray: String? = null,
-        lastMolt: String? = null,
-        size: Long? = null,
-        sizeType: Long? = null,
-        notes: String? = null,
-        photo: ByteArray? = null
-    )
+    fun getAnimalById(animalId: Long): Flow<Animal?>
 
-    fun updateAnimal(
-        animalId: Long,
-        objectId: Long,
-        speciesId: Long,
-        name: String?,
-        gender: String?,
-        birthDate: String?,
-        lastFeeding: String?,
-        lastSpray: String?,
-        lastMolt: String?,
-        size: Long?,
-        sizeType: Long?,
-        notes: String?,
-        photo: ByteArray?
-    )
+    suspend fun insertAnimal(animal: Animal): Long
 
-    fun setLastFeeding(animalId: Long)
-    fun setLastSpray(animalId: Long)
-    fun setLastMolt(animalId: Long)
-    fun setSize(animalId: Long, size: Long)
-    fun deleteAnimal(animalId: Long)
-    fun getAnimalById(id: Long): Flow<Animals?>
+    suspend fun updateAnimal(animal: Animal)
+
+    suspend fun setLastFeeding(animalId: Long)
+    suspend fun setLastSpray(animalId: Long)
+    suspend fun setLastMolt(animalId: Long)
+    suspend fun setSize(animalId: Long, size: Long)
+    suspend fun deleteAnimal(animalId: Long)
 }

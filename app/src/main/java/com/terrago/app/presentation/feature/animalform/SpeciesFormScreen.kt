@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.terrago.app.R
+import com.terrago.app.domain.species.model.Species
 import com.terrago.app.presentation.feature.animalform.components.Label
 import com.terrago.app.presentation.shared.theme.TerraGOTheme
 import com.terrago.app.presentation.feature.animalform.AnimalFormViewModel
@@ -266,16 +267,21 @@ fun SpeciesFormScreen(
                 Button(
                     onClick = {
                         viewModel.insertSpecies(
-                            latinName = uiState.speciesLatinName,
-                            commonName = uiState.speciesCommonName.ifBlank { null },
-                            description = uiState.speciesDescription.ifBlank { null },
-                            temperatureMin = uiState.speciesTempMin.ifBlank { null }
-                                ?.toDoubleOrNull(),
-                            temperatureMax = uiState.speciesTempMax.ifBlank { null }
-                                ?.toDoubleOrNull(),
-                            humidityMin = uiState.speciesHumMin.ifBlank { null }?.toDoubleOrNull(),
-                            humidityMax = uiState.speciesHumMax.ifBlank { null }?.toDoubleOrNull(),
-                            lightCycleH = uiState.speciesLightCycle.ifBlank { null }?.toLongOrNull()
+                            Species(
+                                nameLatin = uiState.speciesLatinName,
+                                nameCommon = uiState.speciesCommonName.ifBlank { null },
+                                description = uiState.speciesDescription.ifBlank { null },
+                                temperatureMin = uiState.speciesTempMin.ifBlank { null }
+                                    ?.toDoubleOrNull(),
+                                temperatureMax = uiState.speciesTempMax.ifBlank { null }
+                                    ?.toDoubleOrNull(),
+                                humidityMin = uiState.speciesHumMin.ifBlank { null }
+                                    ?.toDoubleOrNull(),
+                                humidityMax = uiState.speciesHumMax.ifBlank { null }
+                                    ?.toDoubleOrNull(),
+                                lightCycleH = uiState.speciesLightCycle.ifBlank { null }
+                                    ?.toLongOrNull()
+                            )
                         )
                         onBack()
 

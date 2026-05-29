@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.terrago.app.R
+import com.terrago.app.domain.objects.model.TerraObject
 import com.terrago.app.presentation.feature.animalform.components.Label
 import com.terrago.app.presentation.feature.animalform.components.TerrariumCard
 import com.terrago.app.presentation.shared.theme.TerraGOTheme
@@ -151,21 +152,21 @@ fun ObjectFormScreen(
                                     length = obj.length,
                                     height = obj.height,
                                     description = obj.description,
-                                    locationName = obj.location_name,
-                                    isSelected = uiState.editingObjectId == obj.object_id,
+                                    locationName = obj.locationName,
+                                    isSelected = uiState.editingObjectId == obj.id,
                                     onClick = {
-                                        viewModel.updateState { it.copy(selectedObject = obj.object_id) }
+                                        viewModel.updateState { it.copy(selectedObject = obj.id) }
                                         onBack()
                                     },
                                     onLongClick = {
-                                        uiState.editingObjectId = obj.object_id
+                                        uiState.editingObjectId = obj.id
                                         viewModel.updateState {
                                             it.copy(
                                                 objectName = obj.name,
                                                 objectWidth = obj.width?.toString() ?: "",
                                                 objectLength = obj.length?.toString() ?: "",
                                                 objectHeight = obj.height?.toString() ?: "",
-                                                objectLocationName = obj.location_name ?: "",
+                                                objectLocationName = obj.locationName ?: "",
                                                 objectDescription = obj.description ?: ""
                                             )
                                         }
@@ -326,13 +327,16 @@ fun ObjectFormScreen(
                 Button(
                     onClick = {
                         viewModel.upsertObject(
-                            objectId = uiState.editingObjectId,
-                            name = uiState.objectName,
-                            description = uiState.objectDescription.ifBlank { null },
-                            length = uiState.objectLength.ifBlank { null }?.toLongOrNull(),
-                            width = uiState.objectWidth.ifBlank { null }?.toLongOrNull(),
-                            height = uiState.objectHeight.ifBlank { null }?.toLongOrNull(),
-                            location = uiState.objectLocationName.ifBlank { null })
+                            TerraObject(
+                                id = uiState.editingObjectId ?: 0L,
+                                name = uiState.objectName,
+                                description = uiState.objectDescription.ifBlank { null },
+                                length = uiState.objectLength.ifBlank { null }?.toLongOrNull(),
+                                width = uiState.objectWidth.ifBlank { null }?.toLongOrNull(),
+                                height = uiState.objectHeight.ifBlank { null }?.toLongOrNull(),
+                                locationName = uiState.objectLocationName.ifBlank { null }
+                            )
+                        )
 
                         if (uiState.editingObjectId == null) {
                             onBack()

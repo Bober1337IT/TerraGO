@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.sqldelight)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
@@ -28,16 +27,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-        }
-    }
-
-    // Register SQLDelight generated folders as Kotlin source directories.
-    // This allows Hilt/KSP to "see" and resolve the generated TerraGoDatabase class
-    // during the compilation process, preventing 'NonExistentClass' errors.
-    sourceSets {
-        getByName("main") {
-            kotlin.srcDir("build/generated/sqldelight/code/TerraGoDatabase/debug")
-            kotlin.srcDir("build/generated/sqldelight/code/TerraGoDatabase/release")
         }
     }
 
@@ -69,10 +58,10 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
 
-    // SQLDelight
-    implementation(libs.sqldelight.runtime)
-    implementation(libs.sqldelight.android.driver)
-    implementation(libs.sqldelight.coroutines)
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -91,26 +80,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.room.testing)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-}
-
-// Resolve "Implicit Dependency" and Race Condition issues.
-// We explicitly tell Gradle that the KSP task (used by Hilt) must wait for
-// the SQLDelight generator to finish creating the database interface.
-tasks.withType<com.google.devtools.ksp.gradle.KspTaskJvm> {
-    if (name.contains("Debug")) {
-        dependsOn("generateDebugTerraGoDatabaseInterface")
-    }
-    if (name.contains("Release")) {
-        dependsOn("generateReleaseTerraGoDatabaseInterface")
-    }
-}
-
-sqldelight{
-    databases{
-        create(name = "TerraGoDatabase") {
-            packageName.set("com.terrago.app.db")
-        }
-    }
 }

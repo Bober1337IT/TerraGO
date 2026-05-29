@@ -69,6 +69,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.terrago.app.R
+import com.terrago.app.domain.animals.model.Animal
 import com.terrago.app.presentation.navigation.Screen.AnimalFormRoutes
 import com.terrago.app.presentation.shared.components.photo.PhotoFromByteArray
 import com.terrago.app.presentation.shared.components.photo.rememberPhotoPicker
@@ -207,10 +208,10 @@ fun AnimalFormScreen(
                                 filteredSpecies.forEach { species ->
                                     DropdownMenuItem(text = {
                                         Column {
-                                            Text(species.name_latin, fontWeight = FontWeight.Bold)
-                                            if (!species.name_common.isNullOrBlank()) {
+                                            Text(species.nameLatin, fontWeight = FontWeight.Bold)
+                                            if (!species.nameCommon.isNullOrBlank()) {
                                                 Text(
-                                                    species.name_common,
+                                                    species.nameCommon,
                                                     style = MaterialTheme.typography.bodySmall
                                                 )
                                             }
@@ -218,8 +219,8 @@ fun AnimalFormScreen(
                                     }, onClick = {
                                         viewModel.updateState {
                                             it.copy(
-                                                selectedSpecies = species.species_id,
-                                                speciesSearchQuery = species.name_latin
+                                                selectedSpecies = species.id,
+                                                speciesSearchQuery = species.nameLatin
                                             )
                                         }
                                         speciesExpanded = false
@@ -257,7 +258,7 @@ fun AnimalFormScreen(
                     )
                 ) {
                     Text(
-                        text = objects.find { it.object_id == uiState.selectedObject }?.name
+                        text = objects.find { it.id == uiState.selectedObject }?.name
                             ?: "Select habitat", fontWeight = FontWeight.Bold
                     )
                 }
@@ -481,20 +482,22 @@ fun AnimalFormScreen(
                         val objId = uiState.selectedObject
                         val specId = uiState.selectedSpecies
                         if (objId != null && specId != null) {
-                            viewModel.insertAnimal(
-                                animalId = animalId,
-                                objectId = objId,
-                                speciesId = specId,
-                                name = uiState.name.ifBlank { null },
-                                gender = uiState.gender.ifBlank { null },
-                                birthDate = uiState.birthDate.ifBlank { null },
-                                lastFeeding = viewModel.lastFeeding,
-                                lastSpray = viewModel.lastSpray,
-                                lastMolt = viewModel.lastMolt,
-                                size = uiState.size.toLongOrNull(),
-                                sizeType = uiState.sizeType,
-                                notes = uiState.notes.ifBlank { null },
-                                photo = uiState.photo
+                            viewModel.upsertAnimal(
+                                Animal(
+                                    id = animalId ?: 0L,
+                                    objectId = objId,
+                                    speciesId = specId,
+                                    name = uiState.name.ifBlank { null },
+                                    gender = uiState.gender.ifBlank { null },
+                                    birthDate = uiState.birthDate.ifBlank { null },
+                                    lastFeeding = viewModel.lastFeeding,
+                                    lastSpray = viewModel.lastSpray,
+                                    lastMolt = viewModel.lastMolt,
+                                    size = uiState.size.toLongOrNull(),
+                                    sizeType = uiState.sizeType,
+                                    notes = uiState.notes.ifBlank { null },
+                                    photo = uiState.photo
+                                )
                             )
                             viewModel.clearForm()
                             onBack()
