@@ -1,30 +1,17 @@
 package com.terrago.app.domain.objects
 
-import com.terrago.app.db.Objects
+import com.terrago.app.domain.objects.model.TerraObject
 import kotlinx.coroutines.flow.Flow
 
 interface ObjectsRepository {
-    fun getAllObjects(): Flow<List<Objects>>
-    fun getObjectById(id: Long): Flow<Objects?>
 
-    fun insertObject(
-        name: String,
-        description: String? = null,
-        length: Long? = null,
-        width: Long? = null,
-        height: Long? = null,
-        locationName: String? = null
-    )
+    fun getAllObjects(): Flow<List<TerraObject>>
 
-    fun updateObject(
-        objectId: Long,
-        name: String,
-        description: String? = null,
-        length: Long? = null,
-        width: Long? = null,
-        height: Long? = null,
-        locationName: String? = null
-    )
+    fun getObjectById(id: Long): Flow<TerraObject?>
 
-    fun deleteObject(objectId: Long)
+    suspend fun insertObject(obj: TerraObject): Long
+
+    suspend fun updateObject(obj: TerraObject)
+
+    suspend fun deleteObject(objectId: Long)
 }

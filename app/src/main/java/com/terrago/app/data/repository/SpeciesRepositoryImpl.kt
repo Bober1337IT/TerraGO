@@ -1,54 +1,34 @@
 package com.terrago.app.data.repository
 
-import app.cash.sqldelight.coroutines.asFlow
-import app.cash.sqldelight.coroutines.mapToList
-import com.terrago.app.db.Species
-import com.terrago.app.db.TerraGoDatabase
+import com.terrago.app.data.local.dao.SpeciesDao
+import com.terrago.app.data.local.mapper.toDomain
+import com.terrago.app.data.local.mapper.toEntity
 import com.terrago.app.domain.species.SpeciesRepository
-import kotlinx.coroutines.Dispatchers
+import com.terrago.app.domain.species.model.Species
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-
 class SpeciesRepositoryImpl @Inject constructor(
-    private val db: TerraGoDatabase
+    private val dao: SpeciesDao
 ) : SpeciesRepository {
 
-    override fun getAllSpecies(): Flow<List<Species>> {
-        return db.speciesQueries
-            .getAllSpecies()
-            .asFlow()
-            .mapToList(context = Dispatchers.IO)
+    override fun getAllSpecies(): Flow<List<Species>> =
+        dao.observeAll().map { rows -> rows.map { it.toDomain() } }
+
+    override fun getSpeciesById(id: Long): Flow<Species?> =
+        dao.observeById(id).map { it?.toDomain() }
+
+    override suspend fun countSpecies(): Int = dao.count()
+
+    override suspend fun insertSpecies(species: Species): Long =
+        dao.insert(species.toEntity())
+
+    override suspend fun updateSpecies(species: Species) {
+        dao.update(species.toEntity())
     }
 
-    override fun getSpeciesById(id: Long): Flow<Species?> {
-        return db.speciesQueries
-            .getSpeciesById(id)
-            .asFlow()
-            .mapToList(context = Dispatchers.IO)
-            .map { it.firstOrNull() }
-    }
-
-    override fun insertSpecies(
-        nameLatin: String,
-        nameCommon: String?,
-        description: String?,
-        temperatureMin: Double?,
-        temperatureMax: Double?,
-        humidityMin: Double?,
-        humidityMax: Double?,
-        lightCycleH: Long?
-    ) {
-        db.speciesQueries.insertSpecies(
-            nameLatin,
-            nameCommon,
-            description,
-            temperatureMin,
-            temperatureMax,
-            humidityMin,
-            humidityMax,
-            lightCycleH
-        )
+    override suspend fun insertAllSpecies(species: List<Species>) {
+        dao.insertAll(species.map { it.toEntity() })
     }
 }

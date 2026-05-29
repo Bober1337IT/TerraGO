@@ -1,6 +1,6 @@
 package com.terrago.app.presentation.feature.animalform
 
-import com.terrago.app.db.Species
+import com.terrago.app.domain.species.model.Species
 
 data class AnimalFormUiState(
 

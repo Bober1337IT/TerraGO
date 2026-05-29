@@ -11,7 +11,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.terrago.app.data.local.entity.AnimalPreview
+import com.terrago.app.domain.animals.model.AnimalPreview
 import com.terrago.app.presentation.shared.components.photo.PhotoFromByteArray
 import com.terrago.app.presentation.shared.theme.TerraGOTheme
 

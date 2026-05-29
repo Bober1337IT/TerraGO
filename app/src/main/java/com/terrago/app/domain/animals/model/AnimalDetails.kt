@@ -1,6 +1,5 @@
-package com.terrago.app.data.local.entity
+package com.terrago.app.domain.animals.model
 
-// Needed to show a details of animal
 data class AnimalDetails(
     val animalId: Long,
     val animalName: String?,
