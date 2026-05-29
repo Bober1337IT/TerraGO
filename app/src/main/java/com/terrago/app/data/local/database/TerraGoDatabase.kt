@@ -19,7 +19,7 @@ import com.terrago.app.data.local.entity.SpeciesEntity
         CalendarEventEntity::class,
         ScheduledNotificationEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class TerraGoDatabase : RoomDatabase() {

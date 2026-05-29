@@ -11,16 +11,17 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = CalendarEventEntity::class,
             parentColumns = ["calendarEventId"],
-            childColumns = ["calendarEventId"]
+            childColumns = ["calendarEventId"],
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [Index("calendarEventId")]
 )
 data class ScheduledNotificationEntity(
-    @PrimaryKey(autoGenerate = true) val notificationId: Long = 0L,
-    val calendarEventId: Long,
-    val requestCode: Long,
-    val channelId: String,
-    val nextTriggerMillis: Long,
-    val isActive: Boolean
+    @PrimaryKey(autoGenerate = true) val notificationId: Long = 0L, // primary key, auto-generated
+    val calendarEventId: Long,    // owning calendar event (FK)
+    val workName: String,         // unique WorkManager work name
+    val channelId: String,        // Android notification channel
+    val nextTriggerMillis: Long,  // when WorkManager should fire
+    val isActive: Boolean         // still scheduled and waiting
 )
